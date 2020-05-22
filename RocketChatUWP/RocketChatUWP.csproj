@@ -188,6 +188,7 @@
     <Compile Include="Helpers\ResourceExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\rocket-chat-footer.png" />
     <Content Include="Assets\rocket-chat-logo.png" />
     <Content Include="Assets\rocket-small-logo.png" />
     <Content Include="Assets\warning-shield.png" />

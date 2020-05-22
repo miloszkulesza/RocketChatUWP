@@ -156,7 +156,8 @@ namespace RocketChatUWP.Core.Api
                 request.RequestUri = new Uri($"{serverAddress}/api/v1/rooms.get");
                 request.Method = HttpMethod.Get;
                 var response = await client.SendAsync(request);
-                var responseJson = JsonConvert.DeserializeObject<GetRoomsReponse>(await response.Content.ReadAsStringAsync());
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseJson = JsonConvert.DeserializeObject<GetRoomsReponse>(responseContent);
                 var rooms = new List<Room>();
                 foreach(var room in responseJson.update)
                 {

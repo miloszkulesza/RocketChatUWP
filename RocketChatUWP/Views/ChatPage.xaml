@@ -5,25 +5,146 @@
     xmlns:local="using:RocketChatUWP.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:interactions="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d"
     xmlns:prismMvvm="using:Prism.Windows.Mvvm"
     prismMvvm:ViewModelLocator.AutoWireViewModel="True"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <Style x:Key="channelListHeaderStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="LightGray" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
 
+        <Style x:Key="channelListItemStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="LightGray" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </Page.Resources>
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
-        
-        <ListView ItemsSource="{Binding Rooms}"
-                  Grid.Column="0">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"
-                               FontSize="20" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+
+        <Grid Grid.Column="0"
+              Background="#2f343d">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="10">
+                <TextBlock Text="Przyciski" />
+            </Grid>
+
+            <Grid Grid.Row="1"
+                  Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Dyskusje"
+                               Margin="5"
+                               Grid.Row="0"
+                               Style="{StaticResource channelListHeaderStyle}" />
+                    <ListView ItemsSource="{Binding Discussions}"
+                              Grid.Row="1"
+                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectionMode="Single">                        
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DiscussionName}"
+                                           Style="{StaticResource channelListItemStyle}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Text="Kanały"
+                               Margin="5"
+                               Style="{StaticResource channelListHeaderStyle}" />
+                    <ListView Grid.Row="1"
+                              ItemsSource="{Binding Channels}"
+                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectionMode="Single">                       
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"
+                                           Style="{StaticResource channelListItemStyle}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Prywatne grupy"
+                               Grid.Row="0"
+                               Margin="5"
+                               Style="{StaticResource channelListHeaderStyle}" />
+                    <ListView Grid.Row="1"
+                              SelectionMode="Single"
+                              ItemsSource="{Binding PrivateGroups}"
+                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Style="{StaticResource channelListItemStyle}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Prywatne wiadomości"
+                               Grid.Row="0"
+                               Margin="5"
+                               Style="{StaticResource channelListHeaderStyle}" />
+                    <ListView Grid.Row="1"
+                              ItemsSource="{Binding PrivateMessages}"
+                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectionMode="Single">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Style="{StaticResource channelListItemStyle}"
+                                           Text="{Binding DiscussionName}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Row="2">
+                <Image Source="/Assets/rocket-chat-footer.png"
+                       Stretch="None"
+                       Margin="10"
+                       HorizontalAlignment="Left"/>
+            </Grid>
+        </Grid>
     </Grid>
 </Page>
