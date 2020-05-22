@@ -25,6 +25,7 @@
         public bool active { get; set; }
         public string[] roles { get; set; }
         public dynamic settings { get; set; }
+        public string avatarUrl { get; set; }
     }
 
     public class LoginResponseEmails

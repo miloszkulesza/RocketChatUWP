@@ -1,13 +1,12 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using Newtonsoft.Json;
 using RocketChatUWP.Core.ApiModels;
+using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using System;
-using System.IO;
-using System.Linq;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
 using Windows.Storage;
@@ -19,6 +18,8 @@ namespace RocketChatUWP.Core.Api
     {
         private string serverAddress;
         private readonly IToastNotificationsService toastService;
+
+        public User User { get; set; }
 
         public RocketChatRestApi(IToastNotificationsService toastService)
         {
@@ -43,7 +44,7 @@ namespace RocketChatUWP.Core.Api
                         {
                             settings = new
                             {
-                                restServerAddress = "http://192.168.0.177:3000"
+                                restServerAddress = "http://localhost:3000"
                             }
                         };
                         var json = JsonConvert.SerializeObject(newContent);
@@ -57,7 +58,7 @@ namespace RocketChatUWP.Core.Api
                     {
                         settings = new
                         {
-                            restServerAddress = "http://192.168.0.177:3000"
+                            restServerAddress = "http://localhost:3000"
                         }
                     };
                     var json = JsonConvert.SerializeObject(newContent);
@@ -71,7 +72,7 @@ namespace RocketChatUWP.Core.Api
                 {
                     settings = new
                     {
-                        restServerAddress = "http://192.168.0.177:3000"
+                        restServerAddress = "http://localhost:3000"
                     }
                 };
                 var json = JsonConvert.SerializeObject(content);
@@ -136,9 +137,32 @@ namespace RocketChatUWP.Core.Api
                 }
                 var responseJson = JsonConvert.DeserializeObject<LoginResponse>(await response.Content.ReadAsStringAsync());
                 if (responseJson.status == "success")
+                {
+                    User = new User(responseJson);
                     return true;
+                }
                 else
                     return false;
+            }
+        }
+
+        public async Task<IEnumerable<Room>> GetRooms()
+        {
+            using(var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage();
+                request.Headers.Add("X-Auth-Token", User.AuthToken);
+                request.Headers.Add("X-User-Id", User.Id);
+                request.RequestUri = new Uri($"{serverAddress}/api/v1/rooms.get");
+                request.Method = HttpMethod.Get;
+                var response = await client.SendAsync(request);
+                var responseJson = JsonConvert.DeserializeObject<GetRoomsReponse>(await response.Content.ReadAsStringAsync());
+                var rooms = new List<Room>();
+                foreach(var room in responseJson.update)
+                {
+                    rooms.Add(new Room(room));
+                }
+                return rooms;
             }
         }
     }

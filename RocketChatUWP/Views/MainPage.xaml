@@ -127,7 +127,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
                              Width="500"
-                             PlaceholderText="Email"
+                             PlaceholderText="Email/nazwa użytkownika"
                              Text="{Binding Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              IsEnabled="{Binding ButtonsEnabled}">
                             <TextBox.KeyboardAccelerators>
