@@ -9,7 +9,7 @@
   IgnorableNamespaces="uap mp rescap genTemplate">
 
   <Identity
-    Name="4A9CA9F8-BD19-40DC-A4C4-4918C41F1332"
+    Name="RocketChatUWP"
     Publisher="CN=milos"
     Version="1.0.0.0" />
 
