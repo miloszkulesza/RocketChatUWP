@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Prism.Events;
+using RocketChatUWP.Core.ApiModels;
+using RocketChatUWP.Core.Events.Websocket;
 using RocketChatUWP.Core.Services;
 using System;
 using System.Diagnostics;
+using Windows.Media.Capture.Frames;
 using Windows.Networking.Sockets;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -67,28 +70,19 @@ namespace RocketChatUWP.Core.Api
                                           new JProperty("support", new JArray("1")));
 
             var jsonSerialized = JsonConvert.SerializeObject(connectJson);
-            using (var dataWriter = new DataWriter(socket.OutputStream))
-            {
-                dataWriter.WriteString(jsonSerialized);
-                await dataWriter.StoreAsync();
-                dataWriter.DetachStream();
-            }
+            SendMessage(jsonSerialized);
             Login();
+            SendSubscriptionsRequests();
         }
 
-        private async void Login()
+        private void Login()
         {
             var loginJson = new JObject(new JProperty("msg", "method"),
                                         new JProperty("method", "login"),
                                         new JProperty("id", guid),
                                         new JProperty("params", new JArray(new JObject(new JProperty("resume", rocketChatRest.User.AuthToken)))));
             var jsonSerialized = JsonConvert.SerializeObject(loginJson);
-            using (var dataWriter = new DataWriter(socket.OutputStream))
-            {
-                dataWriter.WriteString(jsonSerialized);
-                await dataWriter.StoreAsync();
-                dataWriter.DetachStream();
-            }
+            SendMessage(jsonSerialized);
         }
 
 
@@ -104,23 +98,81 @@ namespace RocketChatUWP.Core.Api
                 {
                     PongRequest();
                 }
+                if(message.msg != null)
+                {
+                    if(message.msg == "changed" && message.collection == "stream-notify-logged")
+                    {
+                        HandleUserConnectionStatusChange(messageReceived);
+                    }
+                }
             }
         }
 
-        private async void PongRequest()
+        private void PongRequest()
         {
             var pongJson = new
             {
                 msg = "pong"
             };
             var serializedJson = JsonConvert.SerializeObject(pongJson);
+            SendMessage(serializedJson);
+        }
+
+        private void SendSubscriptionsRequests()
+        {
+            var subscriptionJson = new JObject(new JProperty("msg", "sub"),
+                                                         new JProperty("id", guid),
+                                                         new JProperty("name", "stream-notify-logged"),
+                                                         new JProperty("params", new JArray("user-status", false)));
+            var subscriptonSerialized = JsonConvert.SerializeObject(subscriptionJson);
+            SendMessage(subscriptonSerialized);
+        }
+
+        private void HandleUserConnectionStatusChange(string message)
+        {
+            var notification = JsonConvert.DeserializeObject<UserConnectionStatusNotification>(message);
+            dynamic array = notification.fields.args[0];
+            notification.fields.userId = array[0].ToString();
+            notification.fields.username = array[1].ToString();
+            switch (int.Parse(array[2].ToString()))
+            {
+                case 0:
+                    notification.fields.status = "offline";
+                    break;
+                case 1:
+                    notification.fields.status = "online";
+                    break;
+                case 2:
+                    notification.fields.status = "away";
+                    break;
+                case 3:
+                    notification.fields.status = "busy";
+                    break;
+                default:
+                    break;
+            }
+            eventAggregator.GetEvent<UserConnectionStatusChangedEvent>().Publish(notification);
+        }
+
+        public async void SendMessage(string message)
+        {
             using (var dataWriter = new DataWriter(socket.OutputStream))
             {
-                dataWriter.WriteString(serializedJson);
+                dataWriter.WriteString(message);
                 await dataWriter.StoreAsync();
                 dataWriter.DetachStream();
+                Debug.WriteLine($"[{DateTime.Now}]Message sent to MessageWebSocket: {message}");
             }
-            Debug.WriteLine($"[{DateTime.Now}]Message sent to MessageWebSocket: {serializedJson}");
+        }
+
+        public void SetUserStatus(string status)
+        {
+            var json = new JObject(new JProperty("msg", "method"),
+                                   new JProperty("method", $"UserPresence:setDefaultStatus"),
+                                   new JProperty("id", guid),
+                                   new JProperty("params", new JArray(status)));
+            var serializedJson = JsonConvert.SerializeObject(json);
+            SendMessage(serializedJson);
         }
     }
 }
