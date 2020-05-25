@@ -34,6 +34,7 @@ namespace RocketChatUWP
             Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
             Container.RegisterType<IRocketChatRestApi, RocketChatRestApi>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAvatarsService, AvatarsService>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IRocketChatRealtimeApi, RocketChatRealtimeApi>(new ContainerControlledLifetimeManager());
         }
 
         protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)

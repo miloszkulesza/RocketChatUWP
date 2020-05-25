@@ -17,6 +17,7 @@ namespace RocketChatUWP.ViewModels
         private readonly IEventAggregator eventAggregator;
         private readonly IRocketChatRestApi rocketChat;
         private readonly INavigationService navigationService;
+        private readonly IRocketChatRealtimeApi rocketChatRealtime;
         #endregion
 
         #region properties
@@ -58,12 +59,14 @@ namespace RocketChatUWP.ViewModels
         public MainViewModel(
             IEventAggregator eventAggregator,
             IRocketChatRestApi rocketChat,
-            INavigationService navigationService
+            INavigationService navigationService,
+            IRocketChatRealtimeApi rocketChatRealtime
             )
         {
             this.eventAggregator = eventAggregator;
             this.rocketChat = rocketChat;
             this.navigationService = navigationService;
+            this.rocketChatRealtime = rocketChatRealtime;
             RegisterCommands();
             ButtonsEnabled = true;
             IsPopupOpened = false;
@@ -86,13 +89,14 @@ namespace RocketChatUWP.ViewModels
                 result = await rocketChat.Login(Username, Password);
                 ButtonsEnabled = true;
             }
-            catch(Exception ex)
+            catch
             {
                 ButtonsEnabled = true;
                 return;
             }
             if (result)
             {
+                rocketChatRealtime.Connect();
                 navigationService.Navigate(PageTokens.ChatPage, "");
             }
             else

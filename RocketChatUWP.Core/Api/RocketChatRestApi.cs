@@ -40,20 +40,27 @@ namespace RocketChatUWP.Core.Api
                 dynamic content = JsonConvert.DeserializeObject(await FileIO.ReadTextAsync(file));
                 if (content != null)
                 {
-                    if(content.settings.restServerAddress != null)
-                        serverAddress = content.settings.restServerAddress;
+                    if(content.settings != null)
+                    {
+                        if(content.settings.restServerAddress != null)
+                            serverAddress = content.settings.restServerAddress;
+                        else
+                        {
+                            content.settings.restServerAddress = "http://localhost:3000";
+                            var json = JsonConvert.SerializeObject(content);
+                            FileIO.WriteTextAsync(file, json);
+                            serverAddress = content.settings.restServerAddress;
+                        }
+                    }
                     else
                     {
-                        var newContent = new
+                        content.settings = new
                         {
-                            settings = new
-                            {
-                                restServerAddress = "http://localhost:3000"
-                            }
+                            restServerAddress = "http://localhost:3000"
                         };
-                        var json = JsonConvert.SerializeObject(newContent);
-                        await FileIO.WriteTextAsync(file, json);
-                        serverAddress = newContent.settings.restServerAddress;
+                        var json = JsonConvert.SerializeObject(content);
+                        FileIO.WriteTextAsync(file, json);
+                        serverAddress = content.settings.restServerAddress;
                     }
                 }
                 else
@@ -66,7 +73,7 @@ namespace RocketChatUWP.Core.Api
                         }
                     };
                     var json = JsonConvert.SerializeObject(newContent);
-                    await FileIO.WriteTextAsync(file, json);
+                    FileIO.WriteTextAsync(file, json);
                     serverAddress = newContent.settings.restServerAddress;
                 }
             }
@@ -80,7 +87,7 @@ namespace RocketChatUWP.Core.Api
                     }
                 };
                 var json = JsonConvert.SerializeObject(content);
-                await FileIO.WriteTextAsync(file, json);
+                FileIO.WriteTextAsync(file, json);
                 serverAddress = content.settings.restServerAddress;
             }
         }
@@ -103,40 +110,7 @@ namespace RocketChatUWP.Core.Api
                 }
                 catch
                 {
-                    ToastVisual visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Błąd połączenia"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Nie udało się połączyć z serwerem Rocket.Chat"
-                                },
-
-                            },
-
-                            AppLogoOverride = new ToastGenericAppLogo()
-                            {
-                                Source = "Assets/rocket-small-logo.png",
-                                HintCrop = ToastGenericAppLogoCrop.Circle
-                            }
-                        }
-                    };
-                    ToastContent toastContent = new ToastContent()
-                    {
-                        Visual = visual
-                    };
-
-                    var toastXml = new XmlDocument();
-                    toastXml.LoadXml(toastContent.GetContent());
-                    var toast = new ToastNotification(toastXml);
-                    toastService.ShowToastNotification(toast);
+                    toastService.ShowErrorToastNotification("Błąd połączenia", "Nie udało się połączyć z serwerem Rocket.Chat.");
                     throw;
                 }
                 var responseJson = JsonConvert.DeserializeObject<LoginResponse>(await response.Content.ReadAsStringAsync());
