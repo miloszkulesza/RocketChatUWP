@@ -68,6 +68,40 @@
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem Text="{Binding LoggedUser.Name}" />
+                            <MenuFlyoutItem>
+                                <interactivity:Interaction.Behaviors>
+                                    <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="online">
+                                        <interactions:ChangePropertyAction PropertyName="Text" Value="Online" />
+                                    </interactions:DataTriggerBehavior>
+                                    <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="away">
+                                        <interactions:ChangePropertyAction PropertyName="Text" Value="Zaraz wracam" />
+                                    </interactions:DataTriggerBehavior>
+                                    <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="busy">
+                                        <interactions:ChangePropertyAction PropertyName="Text" Value="Zajęty" />
+                                    </interactions:DataTriggerBehavior>
+                                    <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="offline">
+                                        <interactions:ChangePropertyAction PropertyName="Text" Value="Niewidoczny" />
+                                    </interactions:DataTriggerBehavior>
+                                </interactivity:Interaction.Behaviors>
+                                <MenuFlyoutItem.Icon>
+                                    <BitmapIcon UriSource="/Assets/statusdot.png">
+                                        <interactivity:Interaction.Behaviors>
+                                            <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="online">
+                                                <interactions:ChangePropertyAction PropertyName="Foreground" Value="Green" />
+                                            </interactions:DataTriggerBehavior>
+                                            <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="away">
+                                                <interactions:ChangePropertyAction PropertyName="Foreground" Value="Orange" />
+                                            </interactions:DataTriggerBehavior>
+                                            <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="busy">
+                                                <interactions:ChangePropertyAction PropertyName="Foreground" Value="Red" />
+                                            </interactions:DataTriggerBehavior>
+                                            <interactions:DataTriggerBehavior Binding="{Binding LoggedUser.Status}" Value="offline">
+                                                <interactions:ChangePropertyAction PropertyName="Foreground" Value="Gray" />
+                                            </interactions:DataTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </BitmapIcon>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                             <MenuFlyoutSeparator />
                             <MenuFlyoutItem Text="Użytkownik" />
                             <MenuFlyoutItem Text="Online">
