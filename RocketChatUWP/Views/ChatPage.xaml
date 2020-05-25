@@ -39,7 +39,15 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="10">
-                <TextBlock Text="Przyciski" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                
+                <Image Source="{Binding LoggedUser.Avatar}"
+                       Width="25"
+                       Grid.Column="0"
+                       Stretch="Uniform" />
             </Grid>
 
             <Grid Grid.Row="1"

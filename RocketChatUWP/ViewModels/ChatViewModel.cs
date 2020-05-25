@@ -57,7 +57,14 @@ namespace RocketChatUWP.ViewModels
                 SetProperty(ref selectedChannel, null);
                 SetProperty(ref selectedChannel, value);
             }
-        } 
+        }
+
+        private User loggedUser;
+        public User LoggedUser
+        {
+            get { return loggedUser; }
+            set { SetProperty(ref loggedUser, value); }
+        }
         #endregion
 
         #region commands
@@ -70,6 +77,7 @@ namespace RocketChatUWP.ViewModels
             this.rocketChatRest = rocketChatRest;
             RegisterCommands();
             GetRooms();
+            LoggedUser = this.rocketChatRest.User;
         }
         #endregion
 

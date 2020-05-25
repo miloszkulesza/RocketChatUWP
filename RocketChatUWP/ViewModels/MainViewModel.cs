@@ -86,7 +86,7 @@ namespace RocketChatUWP.ViewModels
                 result = await rocketChat.Login(Username, Password);
                 ButtonsEnabled = true;
             }
-            catch
+            catch(Exception ex)
             {
                 ButtonsEnabled = true;
                 return;

@@ -1,4 +1,5 @@
 ﻿using RocketChatUWP.Core.ApiModels;
+using Windows.UI.Xaml.Media;
 
 namespace RocketChatUWP.Core.Models
 {
@@ -26,5 +27,6 @@ namespace RocketChatUWP.Core.Models
         public int UtcOffset { get; set; }
         public string[] Roles { get; set; }
         public string AvatarUrl { get; set; }
+        public ImageSource Avatar { get; set; }
     }
 }

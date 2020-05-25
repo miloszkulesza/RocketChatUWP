@@ -18,12 +18,16 @@ namespace RocketChatUWP.Core.Api
     {
         private string serverAddress;
         private readonly IToastNotificationsService toastService;
+        private readonly IAvatarsService avatarsService;
 
         public User User { get; set; }
 
-        public RocketChatRestApi(IToastNotificationsService toastService)
+        public RocketChatRestApi(
+            IToastNotificationsService toastService,
+            IAvatarsService avatarsService)
         {
             this.toastService = toastService;
+            this.avatarsService = avatarsService;
             SetServerAddress();  
         }
 
@@ -139,6 +143,8 @@ namespace RocketChatUWP.Core.Api
                 if (responseJson.status == "success")
                 {
                     User = new User(responseJson);
+                    var avatar = await avatarsService.GetAvatar(User.AvatarUrl);
+                    User.Avatar = avatar;
                     return true;
                 }
                 else
