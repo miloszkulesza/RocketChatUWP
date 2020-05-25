@@ -43,28 +43,14 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                
-                <Button Width="25"
-                        Height="25"
+
+                <Button Width="30"
+                        Height="30"
                         Grid.Column="0"
                         BorderThickness="0"
-                        CornerRadius="2">
-                    <Button.Background>
-                        <ImageBrush ImageSource="{Binding LoggedUser.Avatar}"
-                                    Stretch="Uniform"/>
-                    </Button.Background>
-                    <Button.Resources>
-                        <ResourceDictionary>
-                            <ResourceDictionary.ThemeDictionaries>
-                                <ResourceDictionary x:Key="Dark">
-                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="LightCoral"/>
-                                </ResourceDictionary>
-                                <ResourceDictionary x:Key="Light">
-                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="LightCoral"/>
-                                </ResourceDictionary>
-                            </ResourceDictionary.ThemeDictionaries>
-                        </ResourceDictionary>
-                    </Button.Resources>
+                        CornerRadius="2"
+                        Padding="0">
+                    <Image Source="{Binding LoggedUser.Avatar}" Stretch="Fill" />
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem Text="{Binding LoggedUser.Name}" />

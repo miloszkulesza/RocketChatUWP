@@ -19,7 +19,11 @@ namespace RocketChatUWP.Core.Services
                     var svg = new SvgImageSource(new Uri(address));
                     return svg;
                 }
-                return new BitmapImage();
+                else
+                {
+                    var img = new BitmapImage(new Uri(address));
+                    return img;
+                }
             }
         }
     }
