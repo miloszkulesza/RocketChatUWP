@@ -191,7 +191,6 @@
     <Content Include="Assets\rocket-chat-footer.png" />
     <Content Include="Assets\rocket-chat-logo.png" />
     <Content Include="Assets\rocket-small-logo.png" />
-    <Content Include="Assets\statusdot.png" />
     <Content Include="Assets\warning-shield.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />

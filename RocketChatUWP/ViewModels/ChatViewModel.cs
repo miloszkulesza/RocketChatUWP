@@ -177,7 +177,7 @@ namespace RocketChatUWP.ViewModels
                     break;
                 case "online":
                     CurrentStatusMenuText = "Online";
-                    CurrentStatusMenuDotColor = new SolidColorBrush(Colors.Green);
+                    CurrentStatusMenuDotColor = new SolidColorBrush(Colors.LightGreen);
                     break;
                 case "away":
                     CurrentStatusMenuText = "Zaraz wracam";

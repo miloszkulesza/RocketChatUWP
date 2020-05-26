@@ -44,13 +44,34 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
-                <Button Width="30"
-                        Height="30"
+                <Button Width="40"
+                        Height="40"
                         Grid.Column="0"
                         BorderThickness="0"
-                        CornerRadius="2"
+                        CornerRadius="5"
+                        Background="#2f343d"
                         Padding="0">
-                    <Image Source="{Binding LoggedUser.Avatar}" Stretch="Fill" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0"
+                               Grid.ColumnSpan="2"
+                               Source="{Binding LoggedUser.Avatar}" 
+                               Stretch="Fill"/>
+                        <Ellipse    Grid.Column="1"
+                                    VerticalAlignment="Bottom"
+                                    HorizontalAlignment="Right"
+                                    Width="15"
+                                    Height="15"
+                                    Margin="-1"
+                                    StrokeThickness="3"
+                                    Stroke="#2f343d"
+                                    Fill="{Binding CurrentStatusMenuDotColor}" >
+                        </Ellipse>
+                    </Grid>
+                    
                     <Button.Flyout>
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem Text="{Binding LoggedUser.Name}"
@@ -58,8 +79,9 @@
                             <MenuFlyoutItem Text="{Binding CurrentStatusMenuText}"
                                             IsEnabled="False">
                                 <MenuFlyoutItem.Icon>
-                                    <BitmapIcon UriSource="/Assets/statusdot.png"
-                                                Foreground="{Binding CurrentStatusMenuDotColor}"/>
+                                    <FontIcon Glyph="&#xE91F;"
+                                              Foreground="{Binding CurrentStatusMenuDotColor}"
+                                              Margin="5"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutSeparator />
@@ -68,29 +90,33 @@
                             <MenuFlyoutItem Text="Online"
                                             Command="{Binding OnlineStatusCommand}">
                                 <MenuFlyoutItem.Icon>
-                                    <BitmapIcon UriSource="/Assets/statusdot.png"
-                                                Foreground="Green" />
+                                    <FontIcon Glyph="&#xE91F;"
+                                              Foreground="LightGreen"
+                                              Margin="5"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="Zaraz wracam"
                                             Command="{Binding AwayStatusCommand}">
                                 <MenuFlyoutItem.Icon>
-                                    <BitmapIcon UriSource="/Assets/statusdot.png"
-                                                Foreground="Orange" />
+                                    <FontIcon Glyph="&#xE91F;"
+                                              Foreground="Orange"
+                                              Margin="5"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="Zajęty"
                                             Command="{Binding BusyStatusCommand}">
                                 <MenuFlyoutItem.Icon>
-                                    <BitmapIcon UriSource="/Assets/statusdot.png"
-                                                Foreground="Red" />
+                                    <FontIcon Glyph="&#xE91F;"
+                                              Foreground="Red"
+                                              Margin="5"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="Niewidoczny"
                                             Command="{Binding OfflineStatusCommand}">
                                 <MenuFlyoutItem.Icon>
-                                    <BitmapIcon UriSource="/Assets/statusdot.png"
-                                                Foreground="Gray" />
+                                    <FontIcon Glyph="&#xE91F;"
+                                              Foreground="Gray"
+                                              Margin="5"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="Edytuj status">
