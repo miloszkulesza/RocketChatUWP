@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RocketChatUWP.Core.ApiModels
+﻿namespace RocketChatUWP.Core.ApiModels
 {
     public class UserConnectionStatusNotification
     {
@@ -19,5 +15,6 @@ namespace RocketChatUWP.Core.ApiModels
         public string userId { get; set; }
         public string status { get; set; }
         public string username { get; set; }
+        public string message { get; set; }
     }
 }

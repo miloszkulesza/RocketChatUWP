@@ -20,6 +20,7 @@
         public LoginResponseEmails[] emails { get; set; }
         public string status { get; set; }
         public string statusConnection { get; set; }
+        public string statusText { get; set; }
         public string username { get; set; }
         public int utcOffset { get; set; }
         public bool active { get; set; }

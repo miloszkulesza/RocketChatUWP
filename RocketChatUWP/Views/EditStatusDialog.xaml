@@ -11,30 +11,21 @@
     Height="200"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    PrimaryButtonText="Anuluj"
-    SecondaryButtonText="Wyślij"
+    PrimaryButtonText="Zamknij"
+    SecondaryButtonText="Zapisz"
     Title="Edytuj status">
 
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <ComboBox x:Name="status"
-                  Grid.Column="0"
-                  VerticalAlignment="Center"
-                  Width="130"
-                  Margin="5">
-            <ComboBoxItem Content="online"/>
-            <ComboBoxItem Content="zaraz wracam"/>
-            <ComboBoxItem Content="zajęty"/>
-            <ComboBoxItem Content="niewidoczny"/>
-        </ComboBox>
-        
+
         <TextBox x:Name="message"
-                 Width="200"
-                 Grid.Column="1"
+                 Width="300"
+                 Grid.Column="0"
                  VerticalAlignment="Center"
-                 Margin="5"/>
+                 Margin="5"
+                 TextChanged="message_TextChanged"
+                 PlaceholderText="Co teraz robisz?"/>
     </Grid>
 </ContentDialog>

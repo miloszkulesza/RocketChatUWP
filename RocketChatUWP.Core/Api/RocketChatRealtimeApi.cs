@@ -151,6 +151,8 @@ namespace RocketChatUWP.Core.Api
                 default:
                     break;
             }
+            if(array[3] != null)
+                notification.fields.message = array[3].ToString();
             eventAggregator.GetEvent<UserConnectionStatusChangedEvent>().Publish(notification);
         }
 

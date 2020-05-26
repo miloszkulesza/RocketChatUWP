@@ -17,6 +17,10 @@ namespace RocketChatUWP.Core.Models
             UtcOffset = loginResponse.data.me.utcOffset;
             Roles = loginResponse.data.me.roles;
             AvatarUrl = loginResponse.data.me.avatarUrl;
+            if (loginResponse.data.me.statusText != null)
+                StatusText = loginResponse.data.me.statusText;
+            else
+                StatusText = loginResponse.data.me.status;
         }
 
         private string authToken;
@@ -78,6 +82,13 @@ namespace RocketChatUWP.Core.Models
         {
             get { return avatar; }
             set { SetProperty(ref avatar, value); }
+        }
+
+        private string statusText;
+        public string StatusText
+        {
+            get { return statusText; }
+            set { SetProperty(ref statusText, value); }
         }
     }
 }

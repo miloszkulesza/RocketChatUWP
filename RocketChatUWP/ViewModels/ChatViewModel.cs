@@ -117,7 +117,7 @@ namespace RocketChatUWP.ViewModels
             this.navigationService = navigationService;
             GetRooms();
             LoggedUser = this.rocketChatRest.User;
-            ChangeCurrentStatus(LoggedUser.Status);
+            ChangeCurrentStatus(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { status = LoggedUser.Status , message = LoggedUser.StatusText } });
             RegisterCommands();
             RegisterSubscriptions();
         }
@@ -156,14 +156,22 @@ namespace RocketChatUWP.ViewModels
 
         private async void OnEditStatus()
         {
-            var dialog = new EditStatusDialog();
+            var dialog = new EditStatusDialog(CurrentStatusMenuText);
             var result = await dialog.ShowAsync();
+            string message = string.Empty;
+            bool isCanceled = false;
             switch(result)
             {
                 case ContentDialogResult.Primary:
+                    isCanceled = true;
                     break;
                 case ContentDialogResult.Secondary:
+                    message = dialog.Message;
                     break;
+            }
+            if (!isCanceled)
+            {
+                rocketChatRest.SetUserStatus(message);
             }
         }
         #endregion
@@ -189,26 +197,47 @@ namespace RocketChatUWP.ViewModels
             eventAggregator.GetEvent<UserConnectionStatusChangedEvent>().Subscribe(UserConnectionStatusChangedHandler);
         }
 
-        private void ChangeCurrentStatus(string status)
+        private void ChangeCurrentStatus(UserConnectionStatusNotification obj)
         {
-            switch(status)
+            switch(obj.fields.status)
             {
                 case "offline":
-                    CurrentStatusMenuText = "Niewidoczny";
                     CurrentStatusMenuDotColor = new SolidColorBrush(Colors.Gray);
                     break;
                 case "online":
-                    CurrentStatusMenuText = "Online";
                     CurrentStatusMenuDotColor = new SolidColorBrush(Colors.LightGreen);
                     break;
                 case "away":
-                    CurrentStatusMenuText = "Zaraz wracam";
                     CurrentStatusMenuDotColor = new SolidColorBrush(Colors.Orange);
                     break;
                 case "busy":
-                    CurrentStatusMenuText = "Zajęty";
                     CurrentStatusMenuDotColor = new SolidColorBrush(Colors.Red);
                     break;
+                default:
+                    break;
+            }
+            if(obj.fields.message != null)
+            {
+                if(obj.fields.message == string.Empty)
+                {
+                    switch(obj.fields.status)
+                    {
+                        case "offline":
+                            CurrentStatusMenuText = "Niewidoczny";
+                            break;
+                        case "online":
+                            CurrentStatusMenuText = "Online";
+                            break;
+                        case "away":
+                            CurrentStatusMenuText = "Zaraz wracam";
+                            break;
+                        case "busy":
+                            CurrentStatusMenuText = "Zajęty";
+                            break;
+                    }
+                }
+                else
+                    CurrentStatusMenuText = obj.fields.message;
             }
         }
         #endregion
@@ -221,7 +250,7 @@ namespace RocketChatUWP.ViewModels
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     LoggedUser.Status = obj.fields.status;
-                    ChangeCurrentStatus(LoggedUser.Status);
+                    ChangeCurrentStatus(obj);
                 });
                 
             }

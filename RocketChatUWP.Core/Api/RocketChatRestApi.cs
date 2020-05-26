@@ -1,10 +1,12 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RocketChatUWP.Core.ApiModels;
 using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -113,7 +115,8 @@ namespace RocketChatUWP.Core.Api
                     toastService.ShowErrorToastNotification("Błąd połączenia", "Nie udało się połączyć z serwerem Rocket.Chat.");
                     throw;
                 }
-                var responseJson = JsonConvert.DeserializeObject<LoginResponse>(await response.Content.ReadAsStringAsync());
+                var responseString = await response.Content.ReadAsStringAsync();
+                var responseJson = JsonConvert.DeserializeObject<LoginResponse>(responseString);
                 if (responseJson.status == "success")
                 {
                     User = new User(responseJson);
@@ -144,6 +147,29 @@ namespace RocketChatUWP.Core.Api
                     rooms.Add(new Room(room));
                 }
                 return rooms;
+            }
+        }
+
+        public async void SetUserStatus(string message = null)
+        {
+            using(var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage();
+                request.Headers.Add("X-Auth-Token", User.AuthToken);
+                request.Headers.Add("X-User-Id", User.Id);
+                request.RequestUri = new Uri($"{serverAddress}/api/v1/users.setStatus");
+                request.Method = HttpMethod.Post;
+                JObject contentJson = new JObject();
+                if (message == null)
+                    contentJson.Add("message", "");
+                else
+                    contentJson.Add("message", message);
+                var json = JsonConvert.SerializeObject(contentJson);
+                var content = new StringContent(json);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                request.Content = content;
+                var response = await client.SendAsync(request);
+                await response.Content.ReadAsStringAsync();
             }
         }
     }

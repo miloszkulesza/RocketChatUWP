@@ -10,5 +10,6 @@ namespace RocketChatUWP.Core.Api
         User User { get; set; }
         Task<bool> Login(string username, string password);
         Task<IEnumerable<Room>> GetRooms();
+        void SetUserStatus(string message = null);
     }
 }
