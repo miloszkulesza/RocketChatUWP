@@ -4,5 +4,6 @@
     {
         public const string MainPage = "Main";
         public const string ChatPage = "Chat";
+        public const string EditStatusDialogPage = "EditStatusDialog";
     }
 }

@@ -119,7 +119,8 @@
                                               Margin="5"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="Edytuj status">
+                            <MenuFlyoutItem Text="Edytuj status"
+                                            Command="{Binding EditStatusCommand}">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE70F;" />
                                 </MenuFlyoutItem.Icon>

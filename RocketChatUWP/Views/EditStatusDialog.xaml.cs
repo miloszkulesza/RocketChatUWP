@@ -7,9 +7,9 @@ namespace RocketChatUWP.Views
     /// <summary>
     /// Pusta strona, która może być używana samodzielnie lub do której można nawigować wewnątrz ramki.
     /// </summary>
-    public sealed partial class ChatPage : Page
+    public sealed partial class EditStatusDialog : ContentDialog
     {
-        public ChatPage()
+        public EditStatusDialog()
         {
             this.InitializeComponent();
         }

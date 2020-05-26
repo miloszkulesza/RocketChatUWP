@@ -1,15 +1,19 @@
 ﻿using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
+using Prism.Windows.Navigation;
 using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.ApiModels;
+using RocketChatUWP.Core.Constants;
 using RocketChatUWP.Core.Events.Websocket;
 using RocketChatUWP.Core.Models;
+using RocketChatUWP.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
 namespace RocketChatUWP.ViewModels
@@ -20,6 +24,7 @@ namespace RocketChatUWP.ViewModels
         private readonly IRocketChatRestApi rocketChatRest;
         private readonly IEventAggregator eventAggregator;
         private readonly IRocketChatRealtimeApi realtimeApi;
+        private readonly INavigationService navigationService;
         #endregion
 
         #region properties
@@ -96,17 +101,20 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand OfflineStatusCommand { get; set; }
         public DelegateCommand AwayStatusCommand { get; set; }
         public DelegateCommand BusyStatusCommand { get; set; }
+        public DelegateCommand EditStatusCommand { get; set; }
         #endregion
 
         #region ctor
         public ChatViewModel(
             IRocketChatRestApi rocketChatRest,
             IEventAggregator eventAggregator,
-            IRocketChatRealtimeApi realtimeApi)
+            IRocketChatRealtimeApi realtimeApi,
+            INavigationService navigationService)
         {
             this.rocketChatRest = rocketChatRest;
             this.eventAggregator = eventAggregator;
             this.realtimeApi = realtimeApi;
+            this.navigationService = navigationService;
             GetRooms();
             LoggedUser = this.rocketChatRest.User;
             ChangeCurrentStatus(LoggedUser.Status);
@@ -122,6 +130,7 @@ namespace RocketChatUWP.ViewModels
             OfflineStatusCommand = new DelegateCommand(OnOfflineStatus);
             AwayStatusCommand = new DelegateCommand(OnAwayStatus);
             BusyStatusCommand = new DelegateCommand(OnBusyStatus);
+            EditStatusCommand = new DelegateCommand(OnEditStatus);
         }
 
         #region commands implementation
@@ -143,6 +152,19 @@ namespace RocketChatUWP.ViewModels
         private void OnOnlineStatus()
         {
             realtimeApi.SetUserStatus("online");
+        }
+
+        private async void OnEditStatus()
+        {
+            var dialog = new EditStatusDialog();
+            var result = await dialog.ShowAsync();
+            switch(result)
+            {
+                case ContentDialogResult.Primary:
+                    break;
+                case ContentDialogResult.Secondary:
+                    break;
+            }
         }
         #endregion
 
