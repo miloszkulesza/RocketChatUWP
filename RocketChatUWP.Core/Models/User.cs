@@ -6,6 +6,11 @@ namespace RocketChatUWP.Core.Models
 {
     public class User : BindableBase
     {
+        public User()
+        {
+
+        }
+
         public User(LoginResponse loginResponse)
         {
             AuthToken = loginResponse.data.authToken;

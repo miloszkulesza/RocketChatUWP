@@ -94,6 +94,13 @@ namespace RocketChatUWP.ViewModels
             get { return currentStatusMenuDotColor; }
             set { SetProperty(ref currentStatusMenuDotColor, value); }
         }
+
+        private ObservableCollection<Message> messages;
+        public ObservableCollection<Message> Messages
+        {
+            get { return messages; }
+            set { SetProperty(ref messages, value); }
+        }
         #endregion
 
         #region commands
@@ -102,6 +109,7 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand AwayStatusCommand { get; set; }
         public DelegateCommand BusyStatusCommand { get; set; }
         public DelegateCommand EditStatusCommand { get; set; }
+        public DelegateCommand SelectedChannelCommand { get; set; }
         #endregion
 
         #region ctor
@@ -131,6 +139,16 @@ namespace RocketChatUWP.ViewModels
             AwayStatusCommand = new DelegateCommand(OnAwayStatus);
             BusyStatusCommand = new DelegateCommand(OnBusyStatus);
             EditStatusCommand = new DelegateCommand(OnEditStatus);
+            SelectedChannelCommand = new DelegateCommand(OnSelectedChannel);
+        }
+
+        private async void OnSelectedChannel()
+        {
+            if(SelectedChannel != null)
+            {
+                var messages = await rocketChatRest.GetChannelHistory(SelectedChannel.Id);
+                Messages = new ObservableCollection<Message>(messages);
+            }
         }
 
         #region commands implementation

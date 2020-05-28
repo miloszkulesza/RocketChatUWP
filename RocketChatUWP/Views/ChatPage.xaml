@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:interactions="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d"
     xmlns:prismMvvm="using:Prism.Windows.Mvvm"
     prismMvvm:ViewModelLocator.AutoWireViewModel="True"
@@ -21,6 +21,21 @@
         <Style x:Key="channelListItemStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="LightGray" />
             <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="channelIconStyle" TargetType="FontIcon">
+            <Setter Property="Foreground" Value="LightGray" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Margin" Value="0 0 5 0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="channelTextIconStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="LightGray" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Margin" Value="0 0 5 0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
     </Page.Resources>
     
@@ -162,11 +177,26 @@
                     <ListView ItemsSource="{Binding Discussions}"
                               Grid.Row="1"
                               SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              SelectionMode="Single">                        
+                              SelectionMode="Single">
+                        <interactivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="SelectionChanged">
+                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                            </core:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding DiscussionName}"
-                                           Style="{StaticResource channelListItemStyle}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon Grid.Column="0"
+                                              Glyph="&#xE8F2;"
+                                              Style="{StaticResource channelIconStyle}" />
+                                    <TextBlock Text="{Binding DiscussionName}"
+                                               Style="{StaticResource channelListItemStyle}"
+                                               Grid.Column="1" />
+                                </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
@@ -184,11 +214,26 @@
                     <ListView Grid.Row="1"
                               ItemsSource="{Binding Channels}"
                               SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              SelectionMode="Single">                       
-                        <ListView.ItemTemplate>
+                              SelectionMode="Single">
+                        <interactivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="SelectionChanged">
+                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                            </core:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
+                            <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Name}"
-                                           Style="{StaticResource channelListItemStyle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="#"
+                                               Style="{StaticResource channelTextIconStyle}"
+                                               Grid.Column="0" />
+                                    <TextBlock Text="{Binding Name}"
+                                               Style="{StaticResource channelListItemStyle}"
+                                               Grid.Column="1" />
+                                </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
@@ -207,6 +252,11 @@
                               SelectionMode="Single"
                               ItemsSource="{Binding PrivateGroups}"
                               SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <interactivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="SelectionChanged">
+                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                            </core:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Style="{StaticResource channelListItemStyle}" />
@@ -228,6 +278,11 @@
                               ItemsSource="{Binding PrivateMessages}"
                               SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               SelectionMode="Single">
+                        <interactivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="SelectionChanged">
+                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                            </core:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Style="{StaticResource channelListItemStyle}"

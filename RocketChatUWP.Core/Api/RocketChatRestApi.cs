@@ -7,6 +7,7 @@ using RocketChatUWP.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -152,7 +153,7 @@ namespace RocketChatUWP.Core.Api
 
         public async void SetUserStatus(string message = null)
         {
-            using(var client = new HttpClient())
+            using (var client = new HttpClient())
             {
                 var request = new HttpRequestMessage();
                 request.Headers.Add("X-Auth-Token", User.AuthToken);
@@ -170,6 +171,23 @@ namespace RocketChatUWP.Core.Api
                 request.Content = content;
                 var response = await client.SendAsync(request);
                 await response.Content.ReadAsStringAsync();
+            }
+        }
+
+        public async Task<IEnumerable<Message>> GetChannelHistory(string roomId, int offset = 0, int count = 20)
+        {
+            using(var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
+                client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
+                var response = await client.GetAsync($"{serverAddress}/api/v1/channels.history?roomId={roomId}&offset={offset}&count={count}");
+                var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
+                List<Message> messages = new List<Message>();
+                foreach(var message in responseContent.messages)
+                {
+                    messages.Add(new Message(message));
+                }
+                return messages;
             }
         }
     }
