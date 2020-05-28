@@ -183,9 +183,9 @@ namespace RocketChatUWP.Core.Api
                 var response = await client.GetAsync($"{serverAddress}/api/v1/channels.history?roomId={roomId}&offset={offset}&count={count}");
                 var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
                 List<Message> messages = new List<Message>();
-                foreach(var message in responseContent.messages)
+                for (int i = 0; i < responseContent.messages.Length; i++)
                 {
-                    messages.Add(new Message(message));
+                    messages.Insert(0, new Message(responseContent.messages[i]));
                 }
                 return messages;
             }
