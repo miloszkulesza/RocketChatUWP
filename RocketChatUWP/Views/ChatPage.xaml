@@ -13,6 +13,11 @@
     prismMvvm:ViewModelLocator.AutoWireViewModel="True"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Page.Resources>
+        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
+        <helpers:MessageTemplateSelector x:Key="messageTemplateSelector"
+                                    MessageTemplate="{StaticResource messageTemplate}"
+                                    UserJoinedTemplate="{StaticResource userJoinedTemplate}" />
+        
         <Style x:Key="channelListHeaderStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="LightGray" />
             <Setter Property="FontWeight" Value="SemiBold" />
@@ -39,7 +44,80 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
-        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
+        <DataTemplate x:Key="messageTemplate">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0"
+                      VerticalAlignment="Center"
+                      Margin="5"
+                      CornerRadius="5">
+                    <Image Source="{Binding User.Avatar}"
+                           Width="35" />
+                </Grid>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding User.Username}"
+                                   Margin="5"
+                                   FontWeight="SemiBold"
+                                   Grid.Column="0"/>
+                        <TextBlock Text="{Binding Timestamp, Converter={StaticResource StringFormatConverter}, ConverterParameter=' {0:HH:mm}'}"
+                                   Grid.Column="1"
+                                   Margin="5"/>
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <TextBlock Text="{Binding MessageContent}"
+                                   TextWrapping="Wrap"
+                                   Margin="5" />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="userJoinedTemplate">
+            <Grid Margin="30 10 10 10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0"
+                       Source="{Binding User.Avatar}"
+                       Width="20"
+                       Margin="0 0 10 0" />
+                <TextBlock Grid.Column="1"
+                           Foreground="Gray"
+                           FontSize="12"
+                           Text="{Binding User.Username}"
+                           Margin="2" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Timestamp, Converter={StaticResource StringFormatConverter}, ConverterParameter=' {0:HH:mm}'}"
+                           Foreground="Gray"
+                           FontSize="12"
+                           Margin="2" />
+                <TextBlock Grid.Column="3"
+                           Text="dołączył do kanału"
+                           FontSize="12"
+                           Foreground="Gray"
+                           Margin="2" />
+            </Grid>
+        </DataTemplate>
     </Page.Resources>
     
     <Grid>
@@ -325,53 +403,8 @@
             <Grid Grid.Row="1">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ListView ItemsSource="{Binding Messages}"
-                              SelectionMode="None">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <Grid Grid.Column="0"
-                                          VerticalAlignment="Center"
-                                          Margin="5"
-                                          CornerRadius="5">
-                                        <Image Source="{Binding User.Avatar}"
-                                               Width="35" />
-                                    </Grid>
-
-                                    <Grid Grid.Column="1">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition />
-                                        </Grid.RowDefinitions>
-
-                                        <Grid Grid.Row="0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition />
-                                                <ColumnDefinition />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding User.Username}"
-                                                       Margin="5"
-                                                       FontWeight="SemiBold"
-                                                       Grid.Column="0"/>
-                                            <TextBlock Text="{Binding Timestamp, Converter={StaticResource StringFormatConverter}, ConverterParameter=' {0:HH:mm}'}"
-                                                       Grid.Column="1"
-                                                       Margin="5"/>
-                                        </Grid>
-
-                                        <Grid Grid.Row="1">
-                                            <TextBlock Text="{Binding MessageContent}"
-                                                       TextWrapping="Wrap"
-                                                       Margin="5" />
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                              SelectionMode="None"
+                              ItemTemplateSelector="{StaticResource messageTemplateSelector}" />
                 </ScrollViewer>
             </Grid>
 

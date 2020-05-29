@@ -15,6 +15,7 @@
         public MessageAuthor u { get; set; }
         public bool groupable { get; set; }
         public string _updatedAt { get; set; }
+        public string t { get; set; }
     }
 
     public class MessageAuthor

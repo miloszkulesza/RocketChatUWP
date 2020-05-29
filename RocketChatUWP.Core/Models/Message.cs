@@ -15,6 +15,10 @@ namespace RocketChatUWP.Core.Models
             User = new User { Id = message.u._id, Username = message.u.username };
             Groupable = message.groupable;
             UpdatedAt = Convert.ToDateTime(message._updatedAt);
+            if (message.t == "uj")
+                UserJoined = true;
+            else
+                UserJoined = false;
         }
 
         private string id;
@@ -64,6 +68,13 @@ namespace RocketChatUWP.Core.Models
         {
             get { return updatedAt; }
             set { SetProperty(ref updatedAt, value); }
+        }
+
+        private bool userJoined;
+        public bool UserJoined
+        {
+            get { return userJoined; }
+            set { SetProperty(ref userJoined, value); }
         }
     }
 }
