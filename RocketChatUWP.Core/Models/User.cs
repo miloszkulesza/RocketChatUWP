@@ -28,6 +28,16 @@ namespace RocketChatUWP.Core.Models
                 StatusText = loginResponse.data.me.status;
         }
 
+        public User(UserResponse response)
+        {
+            Id = response._id;
+            Name = response.name;
+            Status = response.status;
+            Active = response.active;
+            Username = response.username;
+            UtcOffset = response.utcOffset;
+        }
+
         private string authToken;
         public string AuthToken
         {

@@ -11,5 +11,6 @@ namespace RocketChatUWP.Core.Api
         Task<IEnumerable<Room>> GetRooms();
         void SetUserStatus(string message = null);
         Task<IEnumerable<Message>> GetChannelHistory(string roomId, int offset = 0, int count = 20);
+        Task<IEnumerable<User>> GetUsersList();
     }
 }

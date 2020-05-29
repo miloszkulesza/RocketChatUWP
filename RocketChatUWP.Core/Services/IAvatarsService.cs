@@ -5,6 +5,6 @@ namespace RocketChatUWP.Core.Services
 {
     public interface IAvatarsService
     {
-        Task<ImageSource> GetAvatar(string address);
+        ImageSource GetAvatar(string serverAddress, string username);
     }
 }

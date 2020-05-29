@@ -121,7 +121,7 @@ namespace RocketChatUWP.Core.Api
                 if (responseJson.status == "success")
                 {
                     User = new User(responseJson);
-                    var avatar = await avatarsService.GetAvatar(User.AvatarUrl);
+                    var avatar = avatarsService.GetAvatar(serverAddress, User.Username);
                     User.Avatar = avatar;
                     return true;
                 }
@@ -188,6 +188,25 @@ namespace RocketChatUWP.Core.Api
                     messages.Insert(0, new Message(responseContent.messages[i]));
                 }
                 return messages;
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetUsersList()
+        {
+            using(var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
+                client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
+                var response = await client.GetAsync($"{serverAddress}/api/v1/users.list");
+                var responseContent = JsonConvert.DeserializeObject<UsersListResponse>(await response.Content.ReadAsStringAsync());
+                var users = new List<User>();
+                foreach(var user in responseContent.users)
+                {
+                        User newUser = new User(user);
+                        newUser.Avatar = avatarsService.GetAvatar(serverAddress, newUser.Username);
+                        users.Add(newUser);
+                }
+                return users;
             }
         }
     }

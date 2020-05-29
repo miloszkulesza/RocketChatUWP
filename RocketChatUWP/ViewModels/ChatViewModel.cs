@@ -101,6 +101,13 @@ namespace RocketChatUWP.ViewModels
             get { return messages; }
             set { SetProperty(ref messages, value); }
         }
+
+        private ObservableCollection<User> users;
+        public ObservableCollection<User> Users
+        {
+            get { return users; }
+            set { SetProperty(ref users, value); }
+        }
         #endregion
 
         #region commands
@@ -126,6 +133,7 @@ namespace RocketChatUWP.ViewModels
             GetRooms();
             LoggedUser = this.rocketChatRest.User;
             ChangeCurrentStatus(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { status = LoggedUser.Status , message = LoggedUser.StatusText } });
+            GetUsers();
             RegisterCommands();
             RegisterSubscriptions();
         }
@@ -147,6 +155,10 @@ namespace RocketChatUWP.ViewModels
             if(SelectedChannel != null)
             {
                 var messages = await rocketChatRest.GetChannelHistory(SelectedChannel.Id);
+                foreach(var message in messages)
+                {
+                    message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
+                }
                 Messages = new ObservableCollection<Message>(messages);
             }
         }
@@ -208,6 +220,10 @@ namespace RocketChatUWP.ViewModels
                 }
             }
             Discussions = new ObservableCollection<Room>(rooms.Where(x => x.Topic != null).OrderByDescending(x => x.UpdatedAt).ToList());
+            foreach(var discussion in Discussions)
+            {
+                discussion.Name = discussion.DiscussionName;
+            }
         }
 
         private void RegisterSubscriptions()
@@ -257,6 +273,11 @@ namespace RocketChatUWP.ViewModels
                 else
                     CurrentStatusMenuText = obj.fields.message;
             }
+        }
+
+        private async void GetUsers()
+        {
+            Users = new ObservableCollection<User>(await rocketChatRest.GetUsersList());
         }
         #endregion
 
