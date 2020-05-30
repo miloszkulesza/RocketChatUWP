@@ -269,14 +269,21 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <FontIcon Grid.Column="0"
+                                    <Border Width="25"
+                                            Margin="0 0 10 0"
+                                            CornerRadius="3"
+                                            Grid.Column="0">
+                                        <Image Source="{Binding Avatar}" />
+                                    </Border>
+                                    <FontIcon Grid.Column="1"
                                               Glyph="&#xE8F2;"
                                               Style="{StaticResource channelIconStyle}" />
                                     <TextBlock Text="{Binding DiscussionName}"
                                                Style="{StaticResource channelListItemStyle}"
-                                               Grid.Column="1" />
+                                               Grid.Column="2" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -306,14 +313,21 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
+                                    <Border Width="25"
+                                            Margin="0 0 10 0"
+                                            CornerRadius="3"
+                                            Grid.Column="0">
+                                        <Image Source="{Binding Avatar}" />
+                                    </Border>
                                     <TextBlock Text="#"
                                                Style="{StaticResource channelTextIconStyle}"
-                                               Grid.Column="0" />
+                                               Grid.Column="1" />
                                     <TextBlock Text="{Binding Name}"
                                                Style="{StaticResource channelListItemStyle}"
-                                               Grid.Column="1" />
+                                               Grid.Column="2" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -366,8 +380,22 @@
                         </interactivity:Interaction.Behaviors>
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Style="{StaticResource channelListItemStyle}"
-                                           Text="{Binding DiscussionName}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="25"
+                                            Margin="0 0 10 0"
+                                            CornerRadius="3"
+                                            Grid.Column="0">
+                                        <Image Source="{Binding Avatar}" />
+                                    </Border>
+                                    <TextBlock Style="{StaticResource channelListItemStyle}"
+                                           Text="{Binding DiscussionName}"
+                                               Grid.Column="2"/>
+                                </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

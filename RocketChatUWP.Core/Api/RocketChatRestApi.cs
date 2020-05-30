@@ -121,7 +121,7 @@ namespace RocketChatUWP.Core.Api
                 if (responseJson.status == "success")
                 {
                     User = new User(responseJson);
-                    var avatar = avatarsService.GetAvatar(serverAddress, User.Username);
+                    var avatar = avatarsService.GetUserAvatar(serverAddress, User.Username);
                     User.Avatar = avatar;
                     return true;
                 }
@@ -145,7 +145,9 @@ namespace RocketChatUWP.Core.Api
                 var rooms = new List<Room>();
                 foreach(var room in responseJson.update)
                 {
-                    rooms.Add(new Room(room));
+                    Room newRoom = new Room(room);
+                    newRoom.Avatar = avatarsService.GetChannelAvatar(serverAddress, newRoom.Name);
+                    rooms.Add(newRoom);
                 }
                 return rooms;
             }
@@ -203,7 +205,7 @@ namespace RocketChatUWP.Core.Api
                 foreach(var user in responseContent.users)
                 {
                         User newUser = new User(user);
-                        newUser.Avatar = avatarsService.GetAvatar(serverAddress, newUser.Username);
+                        newUser.Avatar = avatarsService.GetUserAvatar(serverAddress, newUser.Username);
                         users.Add(newUser);
                 }
                 return users;

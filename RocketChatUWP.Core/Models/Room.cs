@@ -1,5 +1,6 @@
 ﻿using RocketChatUWP.Core.ApiModels;
 using System;
+using Windows.UI.Xaml.Media;
 
 namespace RocketChatUWP.Core.Models
 {
@@ -33,5 +34,6 @@ namespace RocketChatUWP.Core.Models
         public string Topic { get; set; }
         public string ParentId { get; set; }
         public string DiscussionName { get; set; }
+        public ImageSource Avatar { get; set; }
     }
 }
