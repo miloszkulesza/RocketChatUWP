@@ -35,5 +35,9 @@ namespace RocketChatUWP.Core.Models
         public string ParentId { get; set; }
         public string DiscussionName { get; set; }
         public ImageSource Avatar { get; set; }
+        public bool IsChannel { get; set; } = false;
+        public bool IsDiscussion { get; set; } = false;
+        public bool IsPrivateGroup { get; set; } = false;
+        public bool IsPrivateConversation { get; set; } = false;
     }
 }

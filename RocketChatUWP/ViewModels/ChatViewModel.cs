@@ -210,9 +210,14 @@ namespace RocketChatUWP.ViewModels
         {
             var rooms = await rocketChatRest.GetRooms();
             Channels = new ObservableCollection<Room>(rooms.Where(x => x.T == "c" && x.Topic == null).OrderByDescending(x => x.UpdatedAt).ToList());
+            foreach(var channel in Channels)
+            {
+                channel.IsChannel = true;
+            }
             PrivateMessages = new ObservableCollection<Room>(rooms.Where(x => x.T == "d").OrderByDescending(x => x.UpdatedAt).ToList());
             foreach(var priv in PrivateMessages)
             {
+                priv.IsPrivateConversation = true;
                 foreach(var username in priv.Usernames)
                 {
                     if (rocketChatRest.User.Username != username)
@@ -222,6 +227,7 @@ namespace RocketChatUWP.ViewModels
             Discussions = new ObservableCollection<Room>(rooms.Where(x => x.Topic != null).OrderByDescending(x => x.UpdatedAt).ToList());
             foreach(var discussion in Discussions)
             {
+                discussion.IsDiscussion = true;
                 discussion.Name = discussion.DiscussionName;
             }
         }
