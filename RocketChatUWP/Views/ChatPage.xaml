@@ -336,170 +336,173 @@
                 </Button>
             </Grid>
 
-            <Grid Grid.Row="1"
-                  Margin="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                           Grid.Row="1">
+                <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Dyskusje"
-                               Margin="5"
-                               Grid.Row="0"
-                               Style="{StaticResource channelListHeaderStyle}" />
-                    <ListView ItemsSource="{Binding Discussions}"
-                              Grid.Row="1"
-                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              SelectionMode="Single">
-                        <interactivity:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="SelectionChanged">
-                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
-                            </core:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <Border Width="25"
-                                            Margin="0 0 10 0"
-                                            CornerRadius="3"
-                                            Grid.Column="0">
-                                        <Image Source="{Binding Avatar}" />
-                                    </Border>
-                                    <FontIcon Grid.Column="1"
-                                              Glyph="&#xE8F2;"
-                                              Style="{StaticResource channelIconStyle}" />
-                                    <TextBlock Text="{Binding DiscussionName}"
-                                               Style="{StaticResource channelListItemStyle}"
-                                               Grid.Column="2" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Grid>
 
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0"
-                               Text="Kanały"
-                               Margin="5"
-                               Style="{StaticResource channelListHeaderStyle}" />
-                    <ListView Grid.Row="1"
-                              ItemsSource="{Binding Channels}"
-                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              SelectionMode="Single">
-                        <interactivity:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="SelectionChanged">
-                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
-                            </core:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Dyskusje"
+                                   Margin="5"
+                                   Grid.Row="0"
+                                   Style="{StaticResource channelListHeaderStyle}" />
+                        <ListView ItemsSource="{Binding Discussions}"
+                                  Grid.Row="1"
+                                  SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionMode="Single">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="SelectionChanged">
+                                    <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
                             <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <Border Width="25"
-                                            Margin="0 0 10 0"
-                                            CornerRadius="3"
-                                            Grid.Column="0">
-                                        <Image Source="{Binding Avatar}" />
-                                    </Border>
-                                    <TextBlock Text="#"
-                                               Style="{StaticResource channelTextIconStyle}"
-                                               Grid.Column="1" />
-                                    <TextBlock Text="{Binding Name}"
-                                               Style="{StaticResource channelListItemStyle}"
-                                               Grid.Column="2" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Grid>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="25"
+                                                Margin="0 0 10 0"
+                                                CornerRadius="3"
+                                                Grid.Column="0">
+                                            <Image Source="{Binding Avatar}" />
+                                        </Border>
+                                        <FontIcon Grid.Column="1"
+                                                  Glyph="&#xE8F2;"
+                                                  Style="{StaticResource channelIconStyle}" />
+                                        <TextBlock Text="{Binding DiscussionName}"
+                                                   Style="{StaticResource channelListItemStyle}"
+                                                   Grid.Column="2" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                
 
-                <Grid Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Prywatne grupy"
-                               Grid.Row="0"
-                               Margin="5"
-                               Style="{StaticResource channelListHeaderStyle}" />
-                    <ListView Grid.Row="1"
-                              SelectionMode="Single"
-                              ItemsSource="{Binding PrivateGroups}"
-                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                        <interactivity:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="SelectionChanged">
-                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
-                            </core:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Style="{StaticResource channelListItemStyle}" />
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0"
+                                   Text="Kanały"
+                                   Margin="5"
+                                   Style="{StaticResource channelListHeaderStyle}" />
+                        <ListView Grid.Row="1"
+                                  ItemsSource="{Binding Channels}"
+                                  SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionMode="Single">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="SelectionChanged">
+                                    <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                                <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="25"
+                                                Margin="0 0 10 0"
+                                                CornerRadius="3"
+                                                Grid.Column="0">
+                                            <Image Source="{Binding Avatar}" />
+                                        </Border>
+                                        <TextBlock Text="#"
+                                                   Style="{StaticResource channelTextIconStyle}"
+                                                   Grid.Column="1" />
+                                        <TextBlock Text="{Binding Name}"
+                                                   Style="{StaticResource channelListItemStyle}"
+                                                   Grid.Column="2" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
 
-                <Grid Grid.Row="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Prywatne wiadomości"
-                               Grid.Row="0"
-                               Margin="5"
-                               Style="{StaticResource channelListHeaderStyle}" />
-                    <ListView Grid.Row="1"
-                              ItemsSource="{Binding PrivateMessages}"
-                              SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              SelectionMode="Single">
-                        <interactivity:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="SelectionChanged">
-                                <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
-                            </core:EventTriggerBehavior>
-                        </interactivity:Interaction.Behaviors>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <Border Width="25"
-                                            Margin="0 0 10 0"
-                                            CornerRadius="3"
-                                            Grid.Column="0">
-                                        <Image Source="{Binding Avatar}" />
-                                    </Border>
-                                    <TextBlock Style="{StaticResource channelListItemStyle}"
-                                           Text="{Binding DiscussionName}"
-                                               Grid.Column="2"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Prywatne grupy"
+                                   Grid.Row="0"
+                                   Margin="5"
+                                   Style="{StaticResource channelListHeaderStyle}" />
+                        <ListView Grid.Row="1"
+                                  SelectionMode="Single"
+                                  ItemsSource="{Binding PrivateGroups}"
+                                  SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="SelectionChanged">
+                                    <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Style="{StaticResource channelListItemStyle}" />
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+
+                    <Grid Grid.Row="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Prywatne wiadomości"
+                                   Grid.Row="0"
+                                   Margin="5"
+                                   Style="{StaticResource channelListHeaderStyle}" />
+                        <ListView Grid.Row="1"
+                                  ItemsSource="{Binding PrivateMessages}"
+                                  SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectionMode="Single">
+                            <interactivity:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="SelectionChanged">
+                                    <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                                </core:EventTriggerBehavior>
+                            </interactivity:Interaction.Behaviors>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="25"
+                                                Margin="0 0 10 0"
+                                                CornerRadius="3"
+                                                Grid.Column="0">
+                                            <Image Source="{Binding Avatar}" />
+                                        </Border>
+                                        <TextBlock Style="{StaticResource channelListItemStyle}"
+                                               Text="{Binding DiscussionName}"
+                                                   Grid.Column="2"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </ScrollViewer>
 
             <Grid Grid.Row="2">
                 <Image Source="/Assets/rocket-chat-footer.png"
