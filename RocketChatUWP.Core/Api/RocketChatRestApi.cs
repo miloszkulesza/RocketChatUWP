@@ -1,19 +1,15 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RocketChatUWP.Core.ApiModels;
 using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Windows.Data.Xml.Dom;
 using Windows.Storage;
-using Windows.UI.Notifications;
 
 namespace RocketChatUWP.Core.Api
 {
@@ -76,7 +72,7 @@ namespace RocketChatUWP.Core.Api
                         }
                     };
                     var json = JsonConvert.SerializeObject(newContent);
-                    FileIO.WriteTextAsync(file, json);
+                    await FileIO.WriteTextAsync(file, json);
                     serverAddress = newContent.settings.restServerAddress;
                 }
             }
@@ -90,7 +86,7 @@ namespace RocketChatUWP.Core.Api
                     }
                 };
                 var json = JsonConvert.SerializeObject(content);
-                FileIO.WriteTextAsync(file, json);
+                await FileIO.WriteTextAsync(file, json);
                 serverAddress = content.settings.restServerAddress;
             }
         }
@@ -145,8 +141,19 @@ namespace RocketChatUWP.Core.Api
                 var rooms = new List<Room>();
                 foreach(var room in responseJson.update)
                 {
-                    Room newRoom = new Room(room);
-                    newRoom.Avatar = avatarsService.GetChannelAvatar(serverAddress, newRoom.Name);
+                    Room newRoom;
+                    if (room.t == "c" && room.prid == null)
+                    {
+                        newRoom = new Channel(room);
+                        newRoom.Avatar = avatarsService.GetChannelAvatar(serverAddress, newRoom.Name);
+                    }
+                    else
+                    {
+                        newRoom = new Discussion(room);
+                        newRoom.Avatar = avatarsService.GetChannelAvatar(serverAddress, newRoom.Name);
+                    }
+                    if (room.t == "d")
+                        newRoom = new DirectConversation(room);
                     rooms.Add(newRoom);
                 }
                 return rooms;
@@ -224,6 +231,23 @@ namespace RocketChatUWP.Core.Api
             }
 
             User = null;
+        }
+
+        public async Task<IEnumerable<Message>> GetDirectMessages(string roomId)
+        {
+            using(var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
+                client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
+                var response = await client.GetAsync($"{serverAddress}/api/v1/im.history?roomId={roomId}");
+                var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
+                var messages = new List<Message>();
+                foreach(var message in responseContent.messages)
+                {
+                    messages.Add(new Message(message));
+                }
+                return messages;
+            }
         }
     }
 }

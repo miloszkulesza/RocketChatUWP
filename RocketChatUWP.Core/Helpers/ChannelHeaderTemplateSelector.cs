@@ -16,11 +16,11 @@ namespace RocketChatUWP.Core.Helpers
             if (item != null)
             {
                 Room room = item as Room;
-                if (room.IsDiscussion)
+                if (room is Discussion)
                     return DiscussionHeaderTemplate;
-                if (room.IsPrivateConversation)
+                if (room is DirectConversation)
                     return PrivateConversationHeaderTemplate;
-                if (room.IsChannel)
+                if (room is Channel)
                     return ChannelHeaderTemplate;
             }
             return EmptyHeaderTemplate;

@@ -7,11 +7,13 @@ using RocketChatUWP.Core.ApiModels;
 using RocketChatUWP.Core.Constants;
 using RocketChatUWP.Core.Events.Websocket;
 using RocketChatUWP.Core.Models;
+using RocketChatUWP.Core.Services;
 using RocketChatUWP.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
@@ -50,11 +52,11 @@ namespace RocketChatUWP.ViewModels
             set { SetProperty(ref privateMessages, value); }
         }
 
-        private ObservableCollection<Room> privateDiscussions;
-        public ObservableCollection<Room> PrivateDiscussions
+        private ObservableCollection<Room> directConversations;
+        public ObservableCollection<Room> DirectConversations
         {
-            get { return privateDiscussions; }
-            set { SetProperty(ref privateDiscussions, value); }
+            get { return directConversations; }
+            set { SetProperty(ref directConversations, value); }
         }
 
         private ObservableCollection<Room> privateGroups;
@@ -80,13 +82,6 @@ namespace RocketChatUWP.ViewModels
         {
             get { return loggedUser; }
             set { SetProperty(ref loggedUser, value); }
-        }
-
-        private string currentStatusMenuText;
-        public string CurrentStatusMenuText
-        {
-            get { return currentStatusMenuText; }
-            set { SetProperty(ref currentStatusMenuText, value); }
         }
 
         private Brush currentStatusMenuDotColor;
@@ -119,6 +114,7 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand EditStatusCommand { get; set; }
         public DelegateCommand SelectedChannelCommand { get; set; }
         public DelegateCommand LogoutCommand { get; set; }
+        public DelegateCommand SelectedDirectConversationCommand { get; set; }
         #endregion
 
         #region ctor
@@ -147,19 +143,7 @@ namespace RocketChatUWP.ViewModels
             EditStatusCommand = new DelegateCommand(OnEditStatus);
             SelectedChannelCommand = new DelegateCommand(OnSelectedChannel);
             LogoutCommand = new DelegateCommand(OnLogout);
-        }
-
-        private async void OnSelectedChannel()
-        {
-            if(SelectedChannel != null)
-            {
-                var messages = await rocketChatRest.GetChannelHistory(SelectedChannel.Id);
-                foreach(var message in messages)
-                {
-                    message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
-                }
-                Messages = new ObservableCollection<Message>(messages);
-            }
+            SelectedDirectConversationCommand = new DelegateCommand(OnSelectedDirectConversation);
         }
 
         #region commands implementation
@@ -185,7 +169,7 @@ namespace RocketChatUWP.ViewModels
 
         private async void OnEditStatus()
         {
-            var dialog = new EditStatusDialog(CurrentStatusMenuText);
+            var dialog = new EditStatusDialog(LoggedUser.UserPresence.StatusText);
             var result = await dialog.ShowAsync();
             string message = string.Empty;
             bool isCanceled = false;
@@ -203,32 +187,56 @@ namespace RocketChatUWP.ViewModels
                 rocketChatRest.SetUserStatus(message);
             }
         }
+
+        private async void OnSelectedChannel()
+        {
+            if (SelectedChannel != null)
+            {
+                var messages = await rocketChatRest.GetChannelHistory(SelectedChannel.Id);
+                foreach (var message in messages)
+                {
+                    message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
+                }
+                Messages = new ObservableCollection<Message>(messages);
+            }
+        }
+
+        private void OnLogout()
+        {
+            rocketChatRest.Logout();
+            realtimeApi.DisposeSocket();
+            navigationService.Navigate(PageTokens.MainPage, new { logout = true });
+        }
+
+        private async void OnSelectedDirectConversation()
+        {
+            if (SelectedChannel != null)
+            {
+                var messages = await rocketChatRest.GetDirectMessages(SelectedChannel.Id);
+                foreach (var message in messages)
+                {
+                    message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
+                }
+                Messages = new ObservableCollection<Message>(messages);
+            }
+        }
         #endregion
 
-        private async void GetRooms()
+        #region other methods
+        private async Task GetRooms()
         {
             var rooms = await rocketChatRest.GetRooms();
-            Channels = new ObservableCollection<Room>(rooms.Where(x => x.T == "c" && x.Topic == null).OrderByDescending(x => x.UpdatedAt).ToList());
-            foreach(var channel in Channels)
+            Channels = new ObservableCollection<Room>(rooms.Where(x => x is Channel).ToList());
+            DirectConversations = new ObservableCollection<Room>(rooms.Where(x => x is DirectConversation).ToList());
+            foreach(var conversation in DirectConversations)
             {
-                channel.IsChannel = true;
+                var conversationCasted = conversation as DirectConversation;
+                var userId = conversationCasted.UserIds.FirstOrDefault(x => x != LoggedUser.Id);
+                conversationCasted.User = Users.FirstOrDefault(x => x.Id == userId);
+                conversationCasted.Name = conversationCasted.User.Username;
+                conversationCasted.Avatar = conversationCasted.User.Avatar;
             }
-            PrivateMessages = new ObservableCollection<Room>(rooms.Where(x => x.T == "d").OrderByDescending(x => x.UpdatedAt).ToList());
-            foreach(var priv in PrivateMessages)
-            {
-                priv.IsPrivateConversation = true;
-                foreach(var username in priv.Usernames)
-                {
-                    if (rocketChatRest.User.Username != username)
-                        priv.DiscussionName = username;
-                }
-            }
-            Discussions = new ObservableCollection<Room>(rooms.Where(x => x.Topic != null).OrderByDescending(x => x.UpdatedAt).ToList());
-            foreach(var discussion in Discussions)
-            {
-                discussion.IsDiscussion = true;
-                discussion.Name = discussion.DiscussionName;
-            }
+            Discussions = new ObservableCollection<Room>(rooms.Where(x => x is Discussion).ToList());
         }
 
         private void RegisterSubscriptions()
@@ -262,35 +270,57 @@ namespace RocketChatUWP.ViewModels
                     switch(obj.fields.status)
                     {
                         case "offline":
-                            CurrentStatusMenuText = "Niewidoczny";
+                            LoggedUser.UserPresence.StatusText = "Niewidoczny";
                             break;
                         case "online":
-                            CurrentStatusMenuText = "Online";
+                            LoggedUser.UserPresence.StatusText = "Online";
                             break;
                         case "away":
-                            CurrentStatusMenuText = "Zaraz wracam";
+                            LoggedUser.UserPresence.StatusText = "Zaraz wracam";
                             break;
                         case "busy":
-                            CurrentStatusMenuText = "Zajęty";
+                            LoggedUser.UserPresence.StatusText = "Zajęty";
                             break;
                     }
                 }
                 else
-                    CurrentStatusMenuText = obj.fields.message;
+                    LoggedUser.UserPresence.StatusText = obj.fields.message;
             }
         }
 
-        private async void GetUsers()
+        private async Task GetUsers()
         {
             Users = new ObservableCollection<User>(await rocketChatRest.GetUsersList());
+            foreach(var user in Users)
+            {
+                ChangeUserStatusText(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { userId = user.Id, status = user.UserPresence.Status, message = user.UserPresence.StatusText } });
+            }    
         }
 
-        private void OnLogout()
+        private void ChangeUserStatusText(UserConnectionStatusNotification obj)
         {
-            rocketChatRest.Logout();
-            realtimeApi.DisposeSocket();
-            navigationService.Navigate(PageTokens.MainPage, new { logout = true });
+            if (obj.fields.message == string.Empty)
+            {
+                switch (obj.fields.status)
+                {
+                    case "offline":
+                        Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.StatusText = "Offline";
+                        break;
+                    case "online":
+                        Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.StatusText = "Online";
+                        break;
+                    case "away":
+                        Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.StatusText = "Zaraz wracam";
+                        break;
+                    case "busy":
+                        Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.StatusText = "Zajęty";
+                        break;
+                }
+            }
+            else
+                Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.StatusText = obj.fields.message;
         }
+        #endregion
         #endregion
 
         #region event handlers
@@ -300,22 +330,30 @@ namespace RocketChatUWP.ViewModels
             {
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    LoggedUser.Status = obj.fields.status;
+                    LoggedUser.UserPresence.Status = obj.fields.status;
                     ChangeCurrentStatus(obj);
                 });
                 
+            }
+            else
+            {
+                await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.Status = obj.fields.status;
+                    ChangeUserStatusText(obj);
+                });
             }
         }
         #endregion
 
         #region override
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
             base.OnNavigatedTo(e, viewModelState);
-            GetRooms();
             LoggedUser = rocketChatRest.User;
-            ChangeCurrentStatus(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { status = LoggedUser.Status, message = LoggedUser.StatusText } });
-            GetUsers();
+            ChangeCurrentStatus(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { status = LoggedUser.UserPresence.Status, message = LoggedUser.UserPresence.StatusText } });
+            await GetUsers();
+            await GetRooms();
         }
         #endregion
     }

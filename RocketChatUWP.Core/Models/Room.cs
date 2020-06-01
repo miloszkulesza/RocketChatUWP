@@ -4,8 +4,13 @@ using Windows.UI.Xaml.Media;
 
 namespace RocketChatUWP.Core.Models
 {
-    public class Room
+    public abstract class Room
     {
+        public Room()
+        {
+            
+        }
+
         public Room(RoomResponse roomResponse)
         {
             Id = roomResponse._id;
@@ -14,12 +19,7 @@ namespace RocketChatUWP.Core.Models
             UpdatedAt = Convert.ToDateTime(roomResponse._updatedAt);
             Default = roomResponse.Default;
             RoomOwner = roomResponse.u;
-            Usernames = roomResponse.usernames;
             UsersCount = roomResponse.usersCount;
-            UserIds = roomResponse.uids;
-            Topic = roomResponse.topic;
-            ParentId = roomResponse.prid;
-            DiscussionName = roomResponse.fname;
         }
 
         public string Id { get; set; }
@@ -28,16 +28,7 @@ namespace RocketChatUWP.Core.Models
         public DateTime UpdatedAt { get; set; }
         public bool Default { get; set; }
         public RoomOwner RoomOwner { get; set; }
-        public string[] Usernames { get; set; }
         public int UsersCount { get; set; }
-        public string[] UserIds { get; set; }
-        public string Topic { get; set; }
-        public string ParentId { get; set; }
-        public string DiscussionName { get; set; }
         public ImageSource Avatar { get; set; }
-        public bool IsChannel { get; set; } = false;
-        public bool IsDiscussion { get; set; } = false;
-        public bool IsPrivateGroup { get; set; } = false;
-        public bool IsPrivateConversation { get; set; } = false;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using RocketChatUWP.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 
 namespace RocketChatUWP.Core.Api
 {
@@ -13,5 +14,6 @@ namespace RocketChatUWP.Core.Api
         Task<IEnumerable<Message>> GetChannelHistory(string roomId, int offset = 0, int count = 20);
         Task<IEnumerable<User>> GetUsersList();
         void Logout();
+        Task<IEnumerable<Message>> GetDirectMessages(string roomId);
     }
 }

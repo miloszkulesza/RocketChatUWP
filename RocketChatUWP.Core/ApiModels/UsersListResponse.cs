@@ -18,5 +18,6 @@
         public string name { get; set; }
         public string username { get; set; }
         public int utcOffset { get; set; }
+        public string statusText { get; set; }
     }
 }

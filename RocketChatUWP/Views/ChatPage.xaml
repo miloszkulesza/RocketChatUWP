@@ -127,18 +127,12 @@
 
         <DataTemplate x:Key="channelHeaderTemplate">
             <Grid Width="{Binding ElementName=headerRow, Path=Width}">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0"
-                      Grid.Row="0"
                       Margin="20 0 0 5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -155,33 +149,21 @@
                            Margin="0 10 0 0"
                            VerticalAlignment="Center"/>
                 </Grid>
-                
+
                 <TextBlock Text="Przyciski"
-                           Grid.Row="0"
                            Grid.Column="2"
                             VerticalAlignment="Center"/>
-                <Border BorderThickness="1"
-                        BorderBrush="Gray"
-                        VerticalAlignment="Bottom"
-                        Grid.Row="1"
-                        Grid.ColumnSpan="3"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="discussionHeaderTemplate">
             <Grid Width="{Binding ElementName=headerRow, Path=Width}">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0"
-                      Grid.Row="0"
                       Margin="20 0 0 5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -199,19 +181,85 @@
                 </Grid>
 
                 <TextBlock Text="Przyciski"
-                           Grid.Row="0"
                            Grid.Column="2"
                             VerticalAlignment="Center"/>
-                <Border BorderThickness="1"
-                        BorderBrush="Gray"
-                        VerticalAlignment="Bottom"
-                        Grid.Row="1"
-                        Grid.ColumnSpan="3"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="privateConversationHeaderTemplate">
-            
+            <Grid Width="{Binding ElementName=headerRow, Path=Width}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <Grid Grid.Column="0"
+                      Margin="20 0 0 5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Image Source="{Binding Avatar}"
+                           Grid.Column="0"
+                           Width="30" />
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="@"
+                                       FontSize="16"
+                                       Grid.Column="0"
+                                       Margin="5 0 0 0"/>
+                            <TextBlock Text="{Binding User.Username}"
+                                       FontSize="16"
+                                       Grid.Column="1"/>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Ellipse Grid.Column="0"
+                                 Width="10"
+                                 Height="10"
+                                 Margin="5 0 5 0"
+                                 x:Name="statusDot"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center">
+                                <interactivity:Interaction.Behaviors>
+                                    <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="online">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="LightGreen" />
+                                    </core:DataTriggerBehavior>
+                                    <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="offline">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="LightSlateGray" />
+                                    </core:DataTriggerBehavior>
+                                    <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="away">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="Orange" />
+                                    </core:DataTriggerBehavior>
+                                    <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="busy">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="Red" />
+                                    </core:DataTriggerBehavior>
+                                </interactivity:Interaction.Behaviors>
+                            </Ellipse>
+                            <TextBlock Grid.Column="1"
+                                   Text="{Binding User.UserPresence.StatusText}"
+                                   FontSize="12"
+                                   Foreground="LightSlateGray"/>
+                        </Grid>
+                    </Grid> 
+                </Grid>
+
+                <TextBlock Text="Przyciski"
+                           Grid.Column="2"
+                            VerticalAlignment="Center"/>
+            </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="emptyHeaderTemplate">
@@ -271,7 +319,7 @@
                         <MenuFlyout Placement="Bottom">
                             <MenuFlyoutItem Text="{Binding LoggedUser.Name}"
                                             IsEnabled="False"/>
-                            <MenuFlyoutItem Text="{Binding CurrentStatusMenuText}"
+                            <MenuFlyoutItem Text="{Binding LoggedUser.UserPresence.StatusText}"
                                             IsEnabled="False">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE91F;"
@@ -382,7 +430,7 @@
                                         <FontIcon Grid.Column="1"
                                                   Glyph="&#xE8F2;"
                                                   Style="{StaticResource channelIconStyle}" />
-                                        <TextBlock Text="{Binding DiscussionName}"
+                                        <TextBlock Text="{Binding Name}"
                                                    Style="{StaticResource channelListItemStyle}"
                                                    Grid.Column="2" />
                                     </Grid>
@@ -472,12 +520,12 @@
                                    Margin="5"
                                    Style="{StaticResource channelListHeaderStyle}" />
                         <ListView Grid.Row="1"
-                                  ItemsSource="{Binding PrivateMessages}"
+                                  ItemsSource="{Binding DirectConversations}"
                                   SelectedItem="{Binding SelectedChannel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   SelectionMode="Single">
                             <interactivity:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="SelectionChanged">
-                                    <core:InvokeCommandAction Command="{Binding SelectedChannelCommand}" />
+                                    <core:InvokeCommandAction Command="{Binding SelectedDirectConversationCommand}" />
                                 </core:EventTriggerBehavior>
                             </interactivity:Interaction.Behaviors>
                             <ListView.ItemTemplate>
@@ -494,8 +542,30 @@
                                                 Grid.Column="0">
                                             <Image Source="{Binding Avatar}" />
                                         </Border>
+                                        <Ellipse Grid.Column="1"
+                                                 Width="5"
+                                                 Height="5"
+                                                 Margin="0 0 5 0"
+                                                 x:Name="statusDot"
+                                                 VerticalAlignment="Center"
+                                                 HorizontalAlignment="Center">
+                                            <interactivity:Interaction.Behaviors>
+                                                <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="online">
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="LightGreen" />
+                                                </core:DataTriggerBehavior>
+                                                <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="offline">
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="#1f232a" />
+                                                </core:DataTriggerBehavior>
+                                                <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="away">
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="Orange" />
+                                                </core:DataTriggerBehavior>
+                                                <core:DataTriggerBehavior Binding="{Binding User.UserPresence.Status}" Value="busy">
+                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=statusDot}" PropertyName="Fill" Value="Red" />
+                                                </core:DataTriggerBehavior>
+                                            </interactivity:Interaction.Behaviors>
+                                        </Ellipse>
                                         <TextBlock Style="{StaticResource channelListItemStyle}"
-                                               Text="{Binding DiscussionName}"
+                                                   Text="{Binding Name}"
                                                    Grid.Column="2"/>
                                     </Grid>
                                 </DataTemplate>
