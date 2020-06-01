@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
-
 using Microsoft.Practices.Unity;
-
 using Prism.Mvvm;
 using Prism.Unity.Windows;
 using Prism.Windows.AppModel;
 using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.Constants;
-using RocketChatUWP.Core.Helpers;
 using RocketChatUWP.Core.Services;
-
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml;

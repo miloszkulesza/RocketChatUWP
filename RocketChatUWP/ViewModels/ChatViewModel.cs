@@ -9,6 +9,7 @@ using RocketChatUWP.Core.Events.Websocket;
 using RocketChatUWP.Core.Models;
 using RocketChatUWP.Views;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.UI;
@@ -117,6 +118,7 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand BusyStatusCommand { get; set; }
         public DelegateCommand EditStatusCommand { get; set; }
         public DelegateCommand SelectedChannelCommand { get; set; }
+        public DelegateCommand LogoutCommand { get; set; }
         #endregion
 
         #region ctor
@@ -130,10 +132,6 @@ namespace RocketChatUWP.ViewModels
             this.eventAggregator = eventAggregator;
             this.realtimeApi = realtimeApi;
             this.navigationService = navigationService;
-            GetRooms();
-            LoggedUser = this.rocketChatRest.User;
-            ChangeCurrentStatus(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { status = LoggedUser.Status , message = LoggedUser.StatusText } });
-            GetUsers();
             RegisterCommands();
             RegisterSubscriptions();
         }
@@ -148,6 +146,7 @@ namespace RocketChatUWP.ViewModels
             BusyStatusCommand = new DelegateCommand(OnBusyStatus);
             EditStatusCommand = new DelegateCommand(OnEditStatus);
             SelectedChannelCommand = new DelegateCommand(OnSelectedChannel);
+            LogoutCommand = new DelegateCommand(OnLogout);
         }
 
         private async void OnSelectedChannel()
@@ -285,6 +284,13 @@ namespace RocketChatUWP.ViewModels
         {
             Users = new ObservableCollection<User>(await rocketChatRest.GetUsersList());
         }
+
+        private void OnLogout()
+        {
+            rocketChatRest.Logout();
+            realtimeApi.DisposeSocket();
+            navigationService.Navigate(PageTokens.MainPage, new { logout = true });
+        }
         #endregion
 
         #region event handlers
@@ -299,6 +305,17 @@ namespace RocketChatUWP.ViewModels
                 });
                 
             }
+        }
+        #endregion
+
+        #region override
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            base.OnNavigatedTo(e, viewModelState);
+            GetRooms();
+            LoggedUser = rocketChatRest.User;
+            ChangeCurrentStatus(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { status = LoggedUser.Status, message = LoggedUser.StatusText } });
+            GetUsers();
         }
         #endregion
     }

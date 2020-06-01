@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Microsoft.Graphics.Canvas.Text;
+using Microsoft.Practices.Unity;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
 using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.Constants;
+using RocketChatUWP.Core.Events.Login;
 
 namespace RocketChatUWP.ViewModels
 {
@@ -18,6 +23,7 @@ namespace RocketChatUWP.ViewModels
         private readonly IRocketChatRestApi rocketChat;
         private readonly INavigationService navigationService;
         private readonly IRocketChatRealtimeApi rocketChatRealtime;
+        private readonly IUnityContainer unityContainer;
         #endregion
 
         #region properties
@@ -60,9 +66,11 @@ namespace RocketChatUWP.ViewModels
             IEventAggregator eventAggregator,
             IRocketChatRestApi rocketChat,
             INavigationService navigationService,
-            IRocketChatRealtimeApi rocketChatRealtime
+            IRocketChatRealtimeApi rocketChatRealtime,
+            IUnityContainer unityContainer
             )
         {
+            this.unityContainer = unityContainer;
             this.eventAggregator = eventAggregator;
             this.rocketChat = rocketChat;
             this.navigationService = navigationService;

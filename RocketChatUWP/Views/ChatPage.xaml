@@ -326,7 +326,8 @@
                                     <FontIcon Glyph="&#xE77B;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="Wyloguj">
+                            <MenuFlyoutItem Text="Wyloguj"
+                                            Command="{Binding LogoutCommand}">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xF3B1;" />
                                 </MenuFlyoutItem.Icon>

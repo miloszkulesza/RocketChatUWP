@@ -6,7 +6,6 @@ using RocketChatUWP.Core.Events.Websocket;
 using RocketChatUWP.Core.Services;
 using System;
 using System.Diagnostics;
-using Windows.Media.Capture.Frames;
 using Windows.Networking.Sockets;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -17,7 +16,7 @@ namespace RocketChatUWP.Core.Api
     {
         private string serverAddress;
         private string guid = Guid.NewGuid().ToString();
-        private readonly MessageWebSocket socket;
+        private MessageWebSocket socket;
         private readonly IEventAggregator eventAggregator;
         private readonly IRocketChatRestApi rocketChatRest;
         private readonly IToastNotificationsService toastService;
@@ -151,7 +150,7 @@ namespace RocketChatUWP.Core.Api
                 default:
                     break;
             }
-            if(array[3] != null)
+            if(array[3] != null || array[3].ToString() == string.Empty)
                 notification.fields.message = array[3].ToString();
             eventAggregator.GetEvent<UserConnectionStatusChangedEvent>().Publish(notification);
         }
@@ -175,6 +174,14 @@ namespace RocketChatUWP.Core.Api
                                    new JProperty("params", new JArray(status)));
             var serializedJson = JsonConvert.SerializeObject(json);
             SendMessage(serializedJson);
+        }
+
+        public void DisposeSocket()
+        {
+            socket.Dispose();
+            socket = new MessageWebSocket();
+            socket.MessageReceived += OnMessageReceived;
+            guid = Guid.NewGuid().ToString();
         }
     }
 }

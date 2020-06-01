@@ -211,5 +211,19 @@ namespace RocketChatUWP.Core.Api
                 return users;
             }
         }
+
+        public async void Logout()
+        {
+            using(var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage();
+                request.Headers.Add("X-Auth-Token", User.AuthToken);
+                request.Headers.Add("X-User-Id", User.Id);
+                request.RequestUri = new Uri($"{serverAddress}/api/v1/logout");
+                await client.SendAsync(request);
+            }
+
+            User = null;
+        }
     }
 }

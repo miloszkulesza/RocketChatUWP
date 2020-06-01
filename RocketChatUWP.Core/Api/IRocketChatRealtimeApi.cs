@@ -5,5 +5,6 @@
         void Connect();
         void SendMessage(string message);
         void SetUserStatus(string status);
+        void DisposeSocket();
     }
 }
