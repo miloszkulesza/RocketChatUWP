@@ -299,7 +299,7 @@ namespace RocketChatUWP.ViewModels
 
         private void ChangeUserStatusText(UserConnectionStatusNotification obj)
         {
-            if (obj.fields.message == string.Empty)
+            if (string.IsNullOrEmpty(obj.fields.message))
             {
                 switch (obj.fields.status)
                 {
