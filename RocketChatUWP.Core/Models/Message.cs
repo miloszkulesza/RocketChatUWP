@@ -21,6 +21,17 @@ namespace RocketChatUWP.Core.Models
                 UserJoined = false;
         }
 
+        public Message(NewMessageNotification message)
+        {
+            Id = message.fields.args[0]._id;
+            RoomId = message.fields.args[0].rid;
+            MessageContent = message.fields.args[0].msg;
+            Timestamp = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            double seconds = double.Parse(message.fields.args[0].ts.date);
+            Timestamp =  Timestamp.AddMilliseconds(seconds).ToLocalTime();
+            User = new User { Id = message.fields.args[0].u._id, Username = message.fields.args[0].u.username };
+        }
+
         private string id;
         public string Id
         {

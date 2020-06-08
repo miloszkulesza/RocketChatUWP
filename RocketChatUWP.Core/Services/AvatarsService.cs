@@ -19,5 +19,10 @@ namespace RocketChatUWP.Core.Services
             var img = new BitmapImage(new Uri(imageAddress));
             return img;
         }
+
+        public string GetUserAvatarUrl(string serverAddress, string username)
+        {
+            return $"{serverAddress}/avatar/{username}?format=png";
+        }
     }
 }

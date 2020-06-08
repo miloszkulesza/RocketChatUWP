@@ -1,9 +1,11 @@
-﻿namespace RocketChatUWP.Core.Api
+﻿using System.Threading.Tasks;
+
+namespace RocketChatUWP.Core.Api
 {
     public interface IRocketChatRealtimeApi
     {
-        void Connect();
-        void SendMessage(string message);
+        Task Connect();
+        Task SendMessage(string message);
         void SetUserStatus(string status);
         void DisposeSocket();
     }

@@ -15,5 +15,6 @@ namespace RocketChatUWP.Core.Api
         Task<IEnumerable<User>> GetUsersList();
         void Logout();
         Task<IEnumerable<Message>> GetDirectMessages(string roomId);
+        void PostChatMessage(string roomId, string message);
     }
 }

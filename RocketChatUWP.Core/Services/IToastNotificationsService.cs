@@ -1,4 +1,5 @@
-﻿using Windows.UI.Notifications;
+﻿using RocketChatUWP.Core.Models;
+using Windows.UI.Notifications;
 
 namespace RocketChatUWP.Core.Services
 {
@@ -6,5 +7,6 @@ namespace RocketChatUWP.Core.Services
     {
         void ShowToastNotification(ToastNotification toastNotification);
         void ShowErrorToastNotification(string title, string content);
+        void ShowNewMessageToastNotification(Message message);
     }
 }

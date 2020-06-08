@@ -7,5 +7,6 @@ namespace RocketChatUWP.Core.Services
     {
         ImageSource GetUserAvatar(string serverAddress, string username);
         ImageSource GetChannelAvatar(string serverAddress, string channelName);
+        string GetUserAvatarUrl(string serverAddress, string username);
     }
 }

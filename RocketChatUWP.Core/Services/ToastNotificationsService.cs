@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using RocketChatUWP.Core.Models;
 using System;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
@@ -43,6 +44,44 @@ namespace RocketChatUWP.Core.Services
                     {
                         Source = "Assets/rocket-small-logo.png",
                         HintCrop = ToastGenericAppLogoCrop.Circle
+                    }
+                }
+            };
+            ToastContent toastContent = new ToastContent()
+            {
+                Visual = visual
+            };
+
+            var toastXml = new XmlDocument();
+            toastXml.LoadXml(toastContent.GetContent());
+            var toast = new ToastNotification(toastXml);
+            ShowToastNotification(toast);
+        }
+
+        public void ShowNewMessageToastNotification(Message message)
+        {
+            ToastVisual visual = new ToastVisual()
+            {
+                BindingGeneric = new ToastBindingGeneric()
+                {
+                    Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = message.User.Username
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = message.MessageContent
+                                },
+
+                            },
+
+                    AppLogoOverride = new ToastGenericAppLogo()
+                    {
+                        Source = $"{message.User.AvatarUrl}",
+                        HintCrop = ToastGenericAppLogoCrop.Default
                     }
                 }
             };

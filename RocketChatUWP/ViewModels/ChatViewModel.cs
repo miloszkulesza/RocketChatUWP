@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Text;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
@@ -28,6 +29,7 @@ namespace RocketChatUWP.ViewModels
         private readonly IEventAggregator eventAggregator;
         private readonly IRocketChatRealtimeApi realtimeApi;
         private readonly INavigationService navigationService;
+        private readonly IToastNotificationsService notificationService;
         #endregion
 
         #region properties
@@ -43,13 +45,6 @@ namespace RocketChatUWP.ViewModels
         {
             get { return discussions; }
             set { SetProperty(ref discussions, value); }
-        }
-
-        private ObservableCollection<Room> privateMessages;
-        public ObservableCollection<Room> PrivateMessages
-        {
-            get { return privateMessages; }
-            set { SetProperty(ref privateMessages, value); }
         }
 
         private ObservableCollection<Room> directConversations;
@@ -104,6 +99,13 @@ namespace RocketChatUWP.ViewModels
             get { return users; }
             set { SetProperty(ref users, value); }
         }
+
+        private string messageText;
+        public string MessageText
+        {
+            get { return messageText; }
+            set { SetProperty(ref messageText, value); }
+        }
         #endregion
 
         #region commands
@@ -115,6 +117,7 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand SelectedChannelCommand { get; set; }
         public DelegateCommand LogoutCommand { get; set; }
         public DelegateCommand SelectedDirectConversationCommand { get; set; }
+        public DelegateCommand SendMessageCommand { get; set; }
         #endregion
 
         #region ctor
@@ -122,12 +125,14 @@ namespace RocketChatUWP.ViewModels
             IRocketChatRestApi rocketChatRest,
             IEventAggregator eventAggregator,
             IRocketChatRealtimeApi realtimeApi,
-            INavigationService navigationService)
+            INavigationService navigationService,
+            IToastNotificationsService notificationService)
         {
             this.rocketChatRest = rocketChatRest;
             this.eventAggregator = eventAggregator;
             this.realtimeApi = realtimeApi;
             this.navigationService = navigationService;
+            this.notificationService = notificationService;
             RegisterCommands();
             RegisterSubscriptions();
         }
@@ -144,6 +149,7 @@ namespace RocketChatUWP.ViewModels
             SelectedChannelCommand = new DelegateCommand(OnSelectedChannel);
             LogoutCommand = new DelegateCommand(OnLogout);
             SelectedDirectConversationCommand = new DelegateCommand(OnSelectedDirectConversation);
+            SendMessageCommand = new DelegateCommand(OnSendMessage, CanSendMessage);
         }
 
         #region commands implementation
@@ -192,6 +198,8 @@ namespace RocketChatUWP.ViewModels
         {
             if (SelectedChannel != null)
             {
+                SelectedChannel.HasUnreadedMessages = false;
+                SelectedChannel.ChannelFontWeight = FontWeights.Normal;
                 var messages = await rocketChatRest.GetChannelHistory(SelectedChannel.Id);
                 foreach (var message in messages)
                 {
@@ -212,6 +220,8 @@ namespace RocketChatUWP.ViewModels
         {
             if (SelectedChannel != null)
             {
+                SelectedChannel.HasUnreadedMessages = false;
+                SelectedChannel.ChannelFontWeight = FontWeights.Normal;
                 var messages = await rocketChatRest.GetDirectMessages(SelectedChannel.Id);
                 foreach (var message in messages)
                 {
@@ -219,6 +229,19 @@ namespace RocketChatUWP.ViewModels
                 }
                 Messages = new ObservableCollection<Message>(messages);
             }
+        }
+
+        private void OnSendMessage()
+        {
+            rocketChatRest.PostChatMessage(SelectedChannel.Id, MessageText);
+            MessageText = string.Empty;
+        }
+        #endregion
+
+        #region can execute command
+        private bool CanSendMessage()
+        {
+            return !string.IsNullOrEmpty(MessageText) && SelectedChannel != null;
         }
         #endregion
 
@@ -237,11 +260,13 @@ namespace RocketChatUWP.ViewModels
                 conversationCasted.Avatar = conversationCasted.User.Avatar;
             }
             Discussions = new ObservableCollection<Room>(rooms.Where(x => x is Discussion).ToList());
+            PrivateGroups = new ObservableCollection<Room>();
         }
 
         private void RegisterSubscriptions()
         {
             eventAggregator.GetEvent<UserConnectionStatusChangedEvent>().Subscribe(UserConnectionStatusChangedHandler);
+            eventAggregator.GetEvent<NewMessageEvent>().Subscribe(NewMessageHandler);
         }
 
         private void ChangeCurrentStatus(UserConnectionStatusNotification obj)
@@ -341,6 +366,44 @@ namespace RocketChatUWP.ViewModels
                 {
                     Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.Status = obj.fields.status;
                     ChangeUserStatusText(obj);
+                });
+            }
+        }
+
+        private async void NewMessageHandler(NewMessageNotification obj)
+        {
+            var message = new Message(obj);
+            message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
+            if (SelectedChannel != null && SelectedChannel.Id == obj.fields.args[0].rid)
+                await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    Messages.Add(message);
+                });
+            else
+            {
+                notificationService.ShowNewMessageToastNotification(message);
+                await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    if (Channels.Any(x => x.Id == message.RoomId))
+                    {
+                        Channels.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
+                        Channels.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
+                    }
+                    if (Discussions.Any(x => x.Id == message.RoomId))
+                    {
+                        Discussions.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
+                        Discussions.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
+                    }
+                    if (DirectConversations.Any(x => x.Id == message.RoomId))
+                    {
+                        DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
+                        DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
+                    }
+                    if (PrivateGroups.Any(x => x.Id == message.RoomId))
+                    {
+                        PrivateGroups.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
+                        PrivateGroups.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
+                    }
                 });
             }
         }

@@ -5,6 +5,7 @@ using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -209,11 +210,12 @@ namespace RocketChatUWP.Core.Api
                 var response = await client.GetAsync($"{serverAddress}/api/v1/users.list");
                 var responseContent = JsonConvert.DeserializeObject<UsersListResponse>(await response.Content.ReadAsStringAsync());
                 var users = new List<User>();
-                foreach(var user in responseContent.users)
+                foreach (var user in responseContent.users)
                 {
-                        User newUser = new User(user);
-                        newUser.Avatar = avatarsService.GetUserAvatar(serverAddress, newUser.Username);
-                        users.Add(newUser);
+                    User newUser = new User(user);
+                    newUser.AvatarUrl = avatarsService.GetUserAvatarUrl(serverAddress, newUser.Username);
+                    newUser.Avatar = avatarsService.GetUserAvatar(serverAddress, newUser.Username);
+                    users.Add(newUser);
                 }
                 return users;
             }
@@ -247,6 +249,27 @@ namespace RocketChatUWP.Core.Api
                     messages.Add(new Message(message));
                 }
                 return messages;
+            }
+        }
+
+        public async void PostChatMessage(string roomId, string message)
+        {
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage();
+                request.Headers.Add("X-Auth-Token", User.AuthToken);
+                request.Headers.Add("X-User-Id", User.Id);
+                request.RequestUri = new Uri($"{serverAddress}/api/v1/chat.postMessage");
+                request.Method = HttpMethod.Post;
+                var content = new
+                {
+                    roomId = roomId,
+                    text = message
+                };
+                var stringContent = new StringContent(JsonConvert.SerializeObject(content));
+                stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                request.Content = stringContent;
+                var res = await client.SendAsync(request);
             }
         }
     }
