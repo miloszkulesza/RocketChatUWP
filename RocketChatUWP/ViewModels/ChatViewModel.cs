@@ -381,24 +381,26 @@ namespace RocketChatUWP.ViewModels
                 });
             else
             {
-                if(obj.fields.args[0].t == null || obj.fields.args[0].t != "discussion-created")
-                    notificationService.ShowNewMessageToastNotification(message);
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     if (Channels.Any(x => x.Id == message.RoomId))
                     {
                         Channels.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
                         Channels.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
+                        notificationService.ShowNewMessageToastNotification(message, "channel", Channels.FirstOrDefault(x => x.Id == message.RoomId).Name);
                     }
                     if (Discussions.Any(x => x.Id == message.RoomId))
                     {
                         Discussions.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
                         Discussions.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
+                        if (obj.fields.args[0].t == null || obj.fields.args[0].t != "discussion-created")
+                            notificationService.ShowNewMessageToastNotification(message, "discussion", Discussions.FirstOrDefault(x => x.Id == message.RoomId).Name);
                     }
                     if (DirectConversations.Any(x => x.Id == message.RoomId))
                     {
                         DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
                         DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
+                        notificationService.ShowNewMessageToastNotification(message, "directed", DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).Name);
                     }
                     if (PrivateGroups.Any(x => x.Id == message.RoomId))
                     {

@@ -3,6 +3,7 @@ using RocketChatUWP.Core.Models;
 using System;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
+using Windows.UI.Xaml.Controls;
 
 namespace RocketChatUWP.Core.Services
 {
@@ -58,26 +59,12 @@ namespace RocketChatUWP.Core.Services
             ShowToastNotification(toast);
         }
 
-        public void ShowNewMessageToastNotification(Message message)
+        public void ShowNewMessageToastNotification(Message message, string channelType, string channelName = null)
         {
             ToastVisual visual = new ToastVisual()
             {
                 BindingGeneric = new ToastBindingGeneric()
                 {
-                    Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = message.User.Username
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = message.MessageContent
-                                },
-
-                            },
-
                     AppLogoOverride = new ToastGenericAppLogo()
                     {
                         Source = $"{message.User.AvatarUrl}",
@@ -85,6 +72,21 @@ namespace RocketChatUWP.Core.Services
                     }
                 }
             };
+            switch(channelType)
+            {
+                case "channel":
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"#{channelName}" });
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{message.User.Username}: {message.MessageContent}" });
+                    break;
+                case "directed":
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = message.User.Username });
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = message.MessageContent });
+                    break;
+                case "discussion":
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{channelName}" });
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{message.User.Username}: {message.MessageContent}" });
+                    break;
+            }
             ToastContent toastContent = new ToastContent()
             {
                 Visual = visual
