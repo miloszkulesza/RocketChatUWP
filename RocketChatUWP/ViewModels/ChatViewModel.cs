@@ -381,7 +381,8 @@ namespace RocketChatUWP.ViewModels
                 });
             else
             {
-                notificationService.ShowNewMessageToastNotification(message);
+                if(obj.fields.args[0].t == null || obj.fields.args[0].t != "discussion-created")
+                    notificationService.ShowNewMessageToastNotification(message);
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     if (Channels.Any(x => x.Id == message.RoomId))

@@ -32,6 +32,7 @@ namespace RocketChatUWP.Core.ApiModels
         public bool roomParticipant { get; set; }
         public string roomType { get; set; }
         public string roomName { get; set; }
+        public string t { get; set; }
     }
 
     public class NewMessageTimestamp
