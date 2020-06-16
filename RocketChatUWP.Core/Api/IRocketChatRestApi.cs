@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RocketChatUWP.Core.Api
 {
@@ -16,5 +17,6 @@ namespace RocketChatUWP.Core.Api
         void Logout();
         Task<IEnumerable<Message>> GetDirectMessages(string roomId);
         void PostChatMessage(string roomId, string message);
+        Task<BitmapImage> GetImage(string imageUrl);
     }
 }

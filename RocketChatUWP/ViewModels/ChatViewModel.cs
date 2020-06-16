@@ -6,6 +6,7 @@ using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.ApiModels;
 using RocketChatUWP.Core.Constants;
 using RocketChatUWP.Core.Events.Websocket;
+using RocketChatUWP.Core.Helpers;
 using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using RocketChatUWP.Views;
@@ -204,6 +205,13 @@ namespace RocketChatUWP.ViewModels
                 foreach (var message in messages)
                 {
                     message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
+                    if(message.Attachments != null && message.Attachments.Length > 0)
+                    {
+                        foreach(var attachment in message.Attachments)
+                        {
+                            attachment.ImagePreview = await rocketChatRest.GetImage(attachment.ImageUrl);
+                        }
+                    }
                 }
                 Messages = new ObservableCollection<Message>(messages);
             }

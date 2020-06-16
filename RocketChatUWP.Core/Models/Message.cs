@@ -1,6 +1,11 @@
 ﻿using Prism.Mvvm;
 using RocketChatUWP.Core.ApiModels;
 using System;
+using System.IO;
+using System.Threading.Tasks;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RocketChatUWP.Core.Models
 {
@@ -19,6 +24,16 @@ namespace RocketChatUWP.Core.Models
                 UserJoined = true;
             else
                 UserJoined = false;
+            if (message.file != null)
+                File = new MessageFile(message.file);
+            if(message.attachments != null)
+            {
+                Attachments = new Attachment[message.attachments.Length];
+                for (int i = 0; i < Attachments.Length; i++)
+                {
+                    Attachments[i] = new Attachment(message.attachments[i]);
+                }
+            }
         }
 
         public Message(NewMessageNotification message)
@@ -86,6 +101,66 @@ namespace RocketChatUWP.Core.Models
         {
             get { return userJoined; }
             set { SetProperty(ref userJoined, value); }
+        }
+
+        private MessageFile file;
+        public MessageFile File
+        {
+            get { return file; }
+            set { SetProperty(ref file, value); }
+        }
+
+        private Attachment[] attachments;
+        public Attachment[] Attachments
+        {
+            get { return attachments; }
+            set { SetProperty(ref attachments, value); }
+        }
+    }
+
+    public class MessageFile
+    {
+        public MessageFile(MessageFileInfo file)
+        {
+            Id = file._id;
+            Name = file.name;
+            Type = file.type;
+        }
+
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+    }
+
+    public class Attachment
+    {
+        public Attachment(MessageAttachment attachment)
+        {
+            ImageSize = attachment.image_size;
+            ImageUrl = attachment.image_url;
+            ImageHeight = attachment.image_dimensions.height;
+            ImageWidth = attachment.image_dimensions.width;
+            ImagePreview = Base64ToBitmapImage(attachment.image_preview).Result;
+            Description = attachment.description;
+        }
+        public int ImageSize { get; set; }
+        public string ImageUrl { get; set; }
+        public int ImageWidth { get; set; }
+        public int ImageHeight { get; set; }
+        public BitmapImage ImagePreview { get; set; }
+        public string Description { get; set; }
+
+        private async Task<BitmapImage> Base64ToBitmapImage(string source)
+        {
+            var ims = new InMemoryRandomAccessStream();
+            var bytes = Convert.FromBase64String(source);
+            var dataWriter = new DataWriter(ims);
+            dataWriter.WriteBytes(bytes);
+            await dataWriter.StoreAsync();
+            ims.Seek(0);
+            var img = new BitmapImage();
+            img.SetSource(ims);
+            return img;
         }
     }
 }

@@ -6,11 +6,13 @@ using RocketChatUWP.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RocketChatUWP.Core.Api
 {
@@ -270,6 +272,26 @@ namespace RocketChatUWP.Core.Api
                 stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 request.Content = stringContent;
                 var res = await client.SendAsync(request);
+            }
+        }
+
+        public async Task<BitmapImage> GetImage(string imageUrl)
+        {
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage();
+                request.Headers.Add("X-Auth-Token", User.AuthToken);
+                request.Headers.Add("X-User-Id", User.Id);
+                request.RequestUri = new Uri($"{serverAddress}{imageUrl}");
+                request.Method = HttpMethod.Get;
+                var res = await client.SendAsync(request);
+                var content = await res.Content.ReadAsStreamAsync();
+                var img = new BitmapImage();
+                var memStream = new MemoryStream();
+                await content.CopyToAsync(memStream);
+                memStream.Position = 0;
+                img.SetSource(memStream.AsRandomAccessStream());
+                return img;
             }
         }
     }
