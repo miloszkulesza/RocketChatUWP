@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Practices.Unity;
+using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
@@ -18,8 +19,10 @@ using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Text;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RocketChatUWP.ViewModels
 {
@@ -119,6 +122,7 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand LogoutCommand { get; set; }
         public DelegateCommand SelectedDirectConversationCommand { get; set; }
         public DelegateCommand SendMessageCommand { get; set; }
+        public DelegateCommand<BitmapImage> OpenImageCommand { get; set; }
         #endregion
 
         #region ctor
@@ -151,6 +155,7 @@ namespace RocketChatUWP.ViewModels
             LogoutCommand = new DelegateCommand(OnLogout);
             SelectedDirectConversationCommand = new DelegateCommand(OnSelectedDirectConversation);
             SendMessageCommand = new DelegateCommand(OnSendMessage, CanSendMessage);
+            OpenImageCommand = new DelegateCommand<BitmapImage>(OnOpenImage);
         }
 
         #region commands implementation
@@ -243,6 +248,12 @@ namespace RocketChatUWP.ViewModels
         {
             rocketChatRest.PostChatMessage(SelectedChannel.Id, MessageText);
             MessageText = string.Empty;
+        }
+
+        private async void OnOpenImage(BitmapImage image)
+        {
+            var dialog = new ImagePreviewDialog(image);
+            await dialog.ShowAsync();
         }
         #endregion
 

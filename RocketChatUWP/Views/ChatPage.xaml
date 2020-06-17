@@ -178,9 +178,15 @@
                             </Grid>
                         
                             <Grid Grid.Row="1">
-                                <Image Source="{Binding Attachments[0].ImagePreview}"
-                                       HorizontalAlignment="Left"
-                                       MaxWidth="200"/>
+                                <Button Command="{Binding ElementName=messagesList, Path=DataContext.OpenImageCommand}"
+                                        CommandParameter="{Binding Attachments[0].ImagePreview}"
+                                        Padding="0">
+                                    <Button.Content>
+                                        <Image Source="{Binding Attachments[0].ImagePreview}"
+                                               HorizontalAlignment="Left"
+                                               MaxWidth="200"/>
+                                    </Button.Content>
+                                </Button>
                             </Grid>
 
                             <Grid Grid.Row="2">
@@ -751,6 +757,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ListView ItemsSource="{Binding Messages}"
                               SelectionMode="None"
+                              x:Name="messagesList"
                               ItemTemplateSelector="{StaticResource messageTemplateSelector}" />
                 </ScrollViewer>
             </Grid>

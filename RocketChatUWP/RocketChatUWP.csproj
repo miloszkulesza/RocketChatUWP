@@ -148,6 +148,9 @@
     <Compile Include="Views\EditStatusDialog.xaml.cs">
       <DependentUpon>EditStatusDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ImagePreviewDialog.xaml.cs">
+      <DependentUpon>ImagePreviewDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -178,6 +181,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\EditStatusDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ImagePreviewDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
