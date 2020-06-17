@@ -93,7 +93,8 @@ namespace RocketChatUWP.Core.Services
             }
             ToastContent toastContent = new ToastContent()
             {
-                Visual = visual
+                Visual = visual,
+                DisplayTimestamp = message.Timestamp
             };
 
             var toastXml = new XmlDocument();
@@ -119,7 +120,7 @@ namespace RocketChatUWP.Core.Services
                                 new AdaptiveText()
                                 {
                                     Text = $"Pobrano plik {fileName}"
-                                },
+                                }
                             },
 
                     AppLogoOverride = new ToastGenericAppLogo()
@@ -132,9 +133,18 @@ namespace RocketChatUWP.Core.Services
             ToastContent toastContent = new ToastContent()
             {
                 Visual = visual,
-                ActivationType = ToastActivationType.Foreground
+                DisplayTimestamp = DateTime.Now,
+                Actions = new ToastActionsCustom()
+                {
+                    Buttons =
+                    {
+                        new ToastButton("Otwórz folder", "openDownloadsFolder")
+                        {
+                            ActivationType = ToastActivationType.Foreground
+                        }
+                    }
+                }
             };
-
             var toastXml = new XmlDocument();
             toastXml.LoadXml(toastContent.GetContent());
             var toast = new ToastNotification(toastXml);
@@ -144,12 +154,13 @@ namespace RocketChatUWP.Core.Services
 
         private async void DownloadedToast_Activated(ToastNotification sender, object args)
         {
-
-            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            if ((args as ToastActivatedEventArgs).Arguments == "openDownloadsFolder")
             {
-                await Launcher.LaunchFolderAsync(KnownFolders.PicturesLibrary);
-            });
-            
+                await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    await Launcher.LaunchFolderAsync(KnownFolders.PicturesLibrary);
+                });
+            }
         }
     }
 }

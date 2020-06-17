@@ -1,5 +1,4 @@
-﻿using Microsoft.Practices.Unity;
-using Prism.Commands;
+﻿using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
@@ -7,7 +6,6 @@ using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.ApiModels;
 using RocketChatUWP.Core.Constants;
 using RocketChatUWP.Core.Events.Websocket;
-using RocketChatUWP.Core.Helpers;
 using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using RocketChatUWP.Views;
