@@ -167,7 +167,9 @@
                                            Grid.Column="0" />
                                 <Button Grid.Column="1"
                                         Margin="5"
-                                        Background="Transparent">
+                                        Background="Transparent"
+                                        Command="{Binding ElementName=messagesList, Path=DataContext.DownloadFileCommand}"
+                                        CommandParameter="{Binding}">
                                     <Button.Content>
                                         <FontIcon Glyph="&#xE896;"
                                                   Foreground="#468df5"

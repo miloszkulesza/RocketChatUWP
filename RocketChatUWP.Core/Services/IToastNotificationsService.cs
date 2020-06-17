@@ -8,5 +8,6 @@ namespace RocketChatUWP.Core.Services
         void ShowToastNotification(ToastNotification toastNotification);
         void ShowErrorToastNotification(string title, string content);
         void ShowNewMessageToastNotification(Message message, string channelType, string channelName = null);
+        void ShowDownloadedFileNotification(string fileName, string filePath);
     }
 }

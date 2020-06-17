@@ -1,5 +1,6 @@
 ﻿using RocketChatUWP.Core.Models;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
@@ -18,5 +19,6 @@ namespace RocketChatUWP.Core.Api
         Task<IEnumerable<Message>> GetDirectMessages(string roomId);
         void PostChatMessage(string roomId, string message);
         Task<BitmapImage> GetImage(string imageUrl);
+        Task<MemoryStream> GetFile(string fileUrl);
     }
 }

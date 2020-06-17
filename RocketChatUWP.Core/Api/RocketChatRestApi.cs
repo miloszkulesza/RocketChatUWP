@@ -294,5 +294,22 @@ namespace RocketChatUWP.Core.Api
                 return img;
             }
         }
+
+        public async Task<MemoryStream> GetFile(string fileUrl)
+        {
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage();
+                request.Headers.Add("X-Auth-Token", User.AuthToken);
+                request.Headers.Add("X-User-Id", User.Id);
+                request.RequestUri = new Uri($"{serverAddress}{fileUrl}");
+                request.Method = HttpMethod.Get;
+                var res = await client.SendAsync(request);
+                var content = await res.Content.ReadAsStreamAsync();
+                var memStream = new MemoryStream();
+                await content.CopyToAsync(memStream);
+                return memStream;
+            }
+        }
     }
 }

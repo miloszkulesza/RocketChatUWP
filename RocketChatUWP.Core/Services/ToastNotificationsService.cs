@@ -2,13 +2,17 @@
 using RocketChatUWP.Core.Models;
 using System;
 using Windows.Data.Xml.Dom;
+using Windows.Storage;
+using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
-using Windows.UI.Xaml.Controls;
 
 namespace RocketChatUWP.Core.Services
 {
     public class ToastNotificationsService : IToastNotificationsService
     {
+        private string filePath;
+
         public void ShowToastNotification(ToastNotification toastNotification)
         {
             try
@@ -72,7 +76,7 @@ namespace RocketChatUWP.Core.Services
                     }
                 }
             };
-            switch(channelType)
+            switch (channelType)
             {
                 case "channel":
                     visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"#{channelName}" });
@@ -96,6 +100,56 @@ namespace RocketChatUWP.Core.Services
             toastXml.LoadXml(toastContent.GetContent());
             var toast = new ToastNotification(toastXml);
             ShowToastNotification(toast);
+        }
+
+        public void ShowDownloadedFileNotification(string fileName, string filePath)
+        {
+            this.filePath = filePath;
+            ToastVisual visual = new ToastVisual()
+            {
+                BindingGeneric = new ToastBindingGeneric()
+                {
+                    Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Pobrano plik"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = $"Pobrano plik {fileName}"
+                                },
+                            },
+
+                    AppLogoOverride = new ToastGenericAppLogo()
+                    {
+                        Source = "Assets/rocket-small-logo.png",
+                        HintCrop = ToastGenericAppLogoCrop.Circle
+                    }
+                }
+            };
+            ToastContent toastContent = new ToastContent()
+            {
+                Visual = visual,
+                ActivationType = ToastActivationType.Foreground
+            };
+
+            var toastXml = new XmlDocument();
+            toastXml.LoadXml(toastContent.GetContent());
+            var toast = new ToastNotification(toastXml);
+            toast.Activated += DownloadedToast_Activated;
+            ShowToastNotification(toast);
+        }
+
+        private async void DownloadedToast_Activated(ToastNotification sender, object args)
+        {
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                await Launcher.LaunchFolderAsync(KnownFolders.PicturesLibrary);
+            });
+            
         }
     }
 }

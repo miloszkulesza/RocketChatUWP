@@ -14,8 +14,10 @@ using RocketChatUWP.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Text;
@@ -125,6 +127,7 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand<BitmapImage> OpenImageCommand { get; set; }
         public DelegateCommand PointerEnteredCommand { get; set; }
         public DelegateCommand PointerExitedCommand { get; set; }
+        public DelegateCommand<Message> DownloadFileCommand { get; set; }
         #endregion
 
         #region ctor
@@ -160,6 +163,7 @@ namespace RocketChatUWP.ViewModels
             OpenImageCommand = new DelegateCommand<BitmapImage>(OnOpenImage);
             PointerEnteredCommand = new DelegateCommand(ChangeCursorToHand);
             PointerExitedCommand = new DelegateCommand(ChangeCursorToArrow);
+            DownloadFileCommand = new DelegateCommand<Message>(OnDownloadFile);
         }
 
         #region commands implementation
@@ -258,6 +262,16 @@ namespace RocketChatUWP.ViewModels
         {
             var dialog = new ImagePreviewDialog(image);
             await dialog.ShowAsync();
+        }
+
+        private async void OnDownloadFile(Message message)
+        {
+            var stream = await rocketChatRest.GetFile(message.Attachments[0].ImageUrl);
+            var createdFile = await KnownFolders.PicturesLibrary.CreateFileAsync(message.File.Name, CreationCollisionOption.GenerateUniqueName);
+            var fileStream = await createdFile.OpenStreamForWriteAsync();
+            fileStream.Write(stream.ToArray(), 0, (int)(stream.Length));
+            fileStream.Close();
+            notificationService.ShowDownloadedFileNotification(createdFile.Name, createdFile.Path);
         }
         #endregion
 
