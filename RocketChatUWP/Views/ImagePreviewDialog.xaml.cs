@@ -1,4 +1,5 @@
 ﻿using System;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -35,6 +36,16 @@ namespace RocketChatUWP.Views
                 scrollViewer.ChangeView(null, null, 1.0f);
             else
                 scrollViewer.ChangeView(null, null, 0.4f);
+        }
+
+        private void Button_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 0);
+        }
+
+        private void Button_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 0);
         }
     }
 }

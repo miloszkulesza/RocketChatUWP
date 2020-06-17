@@ -13,7 +13,9 @@
                       HorizontalScrollBarVisibility="Auto"
                       x:Name="scrollViewer">
             <Button Padding="0"
-                    Click="Button_Click">
+                    Click="Button_Click"
+                    PointerEntered="Button_PointerEntered"
+                    PointerExited="Button_PointerExited">
                 <Button.Content>
                     <Image x:Name="imagePreview" />
                 </Button.Content>

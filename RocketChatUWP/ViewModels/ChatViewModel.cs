@@ -123,6 +123,8 @@ namespace RocketChatUWP.ViewModels
         public DelegateCommand SelectedDirectConversationCommand { get; set; }
         public DelegateCommand SendMessageCommand { get; set; }
         public DelegateCommand<BitmapImage> OpenImageCommand { get; set; }
+        public DelegateCommand PointerEnteredCommand { get; set; }
+        public DelegateCommand PointerExitedCommand { get; set; }
         #endregion
 
         #region ctor
@@ -156,6 +158,8 @@ namespace RocketChatUWP.ViewModels
             SelectedDirectConversationCommand = new DelegateCommand(OnSelectedDirectConversation);
             SendMessageCommand = new DelegateCommand(OnSendMessage, CanSendMessage);
             OpenImageCommand = new DelegateCommand<BitmapImage>(OnOpenImage);
+            PointerEnteredCommand = new DelegateCommand(ChangeCursorToHand);
+            PointerExitedCommand = new DelegateCommand(ChangeCursorToArrow);
         }
 
         #region commands implementation
@@ -363,6 +367,16 @@ namespace RocketChatUWP.ViewModels
             }
             else
                 Users.FirstOrDefault(x => x.Id == obj.fields.userId).UserPresence.StatusText = obj.fields.message;
+        }
+
+        private void ChangeCursorToArrow()
+        {
+            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 0);
+        }
+
+        private void ChangeCursorToHand()
+        {
+            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 0);
         }
         #endregion
         #endregion
