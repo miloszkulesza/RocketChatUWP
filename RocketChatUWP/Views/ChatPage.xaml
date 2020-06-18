@@ -186,15 +186,31 @@
                                     </interactivity:Interaction.Behaviors>
                                 </Button>
                             </Grid>
-                        
-                            <Grid Grid.Row="1">
+
+                            <Grid Grid.Row="1"
+                                  x:Name="imagePreview">
+                                <interactivity:Interaction.Behaviors>
+                                    <core:DataTriggerBehavior Binding="{Binding Attachments[0].IsImage}"
+                                                              Value="True">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=imagePreview}"
+                                                                   PropertyName="Visibility"
+                                                                   Value="Visible" />
+                                    </core:DataTriggerBehavior>
+                                    <core:DataTriggerBehavior Binding="{Binding Attachments[0].IsImage}"
+                                                              Value="False">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=imagePreview}"
+                                                                   PropertyName="Visibility"
+                                                                   Value="Collapsed" />
+                                    </core:DataTriggerBehavior>
+                                </interactivity:Interaction.Behaviors>
                                 <Button Command="{Binding ElementName=messagesList, Path=DataContext.OpenImageCommand}"
                                         CommandParameter="{Binding Attachments[0].ImagePreview}"
-                                        Padding="0">
+                                        Padding="0"
+                                        BorderThickness="0">
                                     <Button.Content>
                                         <Image Source="{Binding Attachments[0].ImagePreview}"
                                                HorizontalAlignment="Left"
-                                               MaxWidth="200">
+                                               Width="200">
                                             <interactivity:Interaction.Behaviors>
                                                 <core:EventTriggerBehavior EventName="PointerEntered">
                                                     <core:InvokeCommandAction Command="{Binding ElementName=messagesList, Path=DataContext.PointerEnteredCommand}" />
@@ -208,12 +224,30 @@
                                 </Button>
                             </Grid>
 
-                            <Grid Grid.Row="2">
+                            <Grid Grid.Row="2"
+                                  x:Name="imageDescription">
+                                <interactivity:Interaction.Behaviors>
+                                    <core:DataTriggerBehavior Binding="{Binding Attachments[0].IsDescription}"
+                                                              Value="True">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=imageDescription}"
+                                                                   PropertyName="Visibility"
+                                                                   Value="Visible" />
+                                    </core:DataTriggerBehavior>
+                                    <core:DataTriggerBehavior Binding="{Binding Attachments[0].IsDescription}"
+                                                              Value="False">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=imageDescription}"
+                                                                   PropertyName="Visibility"
+                                                                   Value="Collapsed" />
+                                    </core:DataTriggerBehavior>
+                                </interactivity:Interaction.Behaviors>
                                 <Border Background="#f3f4f2"
                                         BorderBrush="#e7e8e6"
-                                        BorderThickness="1">
+                                        BorderThickness="1"
+                                        Width="200"
+                                        HorizontalAlignment="Left">
                                     <TextBlock Text="{Binding Attachments[0].Description}"
-                                               Margin="5"/>
+                                               Margin="5"
+                                               TextWrapping="WrapWholeWords" />
                                 </Border>
                             </Grid>
                         </Grid>

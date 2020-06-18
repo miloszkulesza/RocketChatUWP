@@ -24,5 +24,10 @@ namespace RocketChatUWP.Core.Services
         {
             return $"{serverAddress}/avatar/{username}?format=png";
         }
+
+        public string GetChannelAvatarUrl(string serverAddress, string channelName)
+        {
+            return $"{serverAddress}/avatar/@{channelName}?format=png";
+        }
     }
 }

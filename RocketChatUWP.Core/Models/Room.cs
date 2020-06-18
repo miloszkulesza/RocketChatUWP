@@ -34,6 +34,7 @@ namespace RocketChatUWP.Core.Models
         public RoomOwner RoomOwner { get; set; }
         public int UsersCount { get; set; }
         public ImageSource Avatar { get; set; }
+        public string AvatarUrl { get; set; }
 
         private bool hasUnreadedMessages;
         public bool HasUnreadedMessages

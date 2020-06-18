@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.Models;
 using System;
 using Windows.Data.Xml.Dom;
@@ -6,6 +7,7 @@ using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RocketChatUWP.Core.Services
 {
@@ -63,7 +65,7 @@ namespace RocketChatUWP.Core.Services
             ShowToastNotification(toast);
         }
 
-        public void ShowNewMessageToastNotification(Message message, string channelType, string channelName = null)
+        public void ShowNewMessageToastNotification(Message message, Room channel, bool isImage = false)
         {
             ToastVisual visual = new ToastVisual()
             {
@@ -71,25 +73,36 @@ namespace RocketChatUWP.Core.Services
                 {
                     AppLogoOverride = new ToastGenericAppLogo()
                     {
-                        Source = $"{message.User.AvatarUrl}",
                         HintCrop = ToastGenericAppLogoCrop.Default
                     }
                 }
             };
-            switch (channelType)
+            if (channel is Channel)
             {
-                case "channel":
-                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"#{channelName}" });
+                visual.BindingGeneric.AppLogoOverride.Source = channel.AvatarUrl;
+                visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"#{channel.Name}" });
+                if (isImage)
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{message.User.Username} przesłał zdjęcie" });
+                else
                     visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{message.User.Username}: {message.MessageContent}" });
-                    break;
-                case "directed":
-                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = message.User.Username });
+            }
+            if (channel is DirectConversation)
+            {
+                visual.BindingGeneric.AppLogoOverride.Source = message.User.AvatarUrl;
+                visual.BindingGeneric.Children.Add(new AdaptiveText { Text = message.User.Username });
+                if (isImage)
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"Przesłano zdjęcie" });
+                else
                     visual.BindingGeneric.Children.Add(new AdaptiveText { Text = message.MessageContent });
-                    break;
-                case "discussion":
-                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{channelName}" });
+            }
+            if (channel is Discussion)
+            {
+                visual.BindingGeneric.AppLogoOverride.Source = channel.AvatarUrl;
+                visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{channel.Name}" });
+                if (isImage)
+                    visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{message.User.Username} przesłał zdjęcie" });
+                else
                     visual.BindingGeneric.Children.Add(new AdaptiveText { Text = $"{message.User.Username}: {message.MessageContent}" });
-                    break;
             }
             ToastContent toastContent = new ToastContent()
             {

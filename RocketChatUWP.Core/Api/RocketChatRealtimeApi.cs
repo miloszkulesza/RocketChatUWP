@@ -206,6 +206,8 @@ namespace RocketChatUWP.Core.Api
         private void HandleUserNotifyStream(string messageReceived)
         {
             var notification = JsonConvert.DeserializeObject<NewMessageNotification>(messageReceived);
+            if (notification.fields.args[0].t == "discussion-created")
+                return;
             eventAggregator.GetEvent<NewMessageEvent>().Publish(notification);
         }
     }

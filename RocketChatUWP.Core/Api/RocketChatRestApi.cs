@@ -18,11 +18,11 @@ namespace RocketChatUWP.Core.Api
 {
     public class RocketChatRestApi : IRocketChatRestApi
     {
-        private string serverAddress;
         private readonly IToastNotificationsService toastService;
         private readonly IAvatarsService avatarsService;
 
         public User User { get; set; }
+        public string ServerAddress { get; set; }
 
         public RocketChatRestApi(
             IToastNotificationsService toastService,
@@ -45,13 +45,13 @@ namespace RocketChatUWP.Core.Api
                     if(content.settings != null)
                     {
                         if(content.settings.restServerAddress != null)
-                            serverAddress = content.settings.restServerAddress;
+                            ServerAddress = content.settings.restServerAddress;
                         else
                         {
                             content.settings.restServerAddress = "http://localhost:3000";
                             var json = JsonConvert.SerializeObject(content);
                             FileIO.WriteTextAsync(file, json);
-                            serverAddress = content.settings.restServerAddress;
+                            ServerAddress = content.settings.restServerAddress;
                         }
                     }
                     else
@@ -62,7 +62,7 @@ namespace RocketChatUWP.Core.Api
                         };
                         var json = JsonConvert.SerializeObject(content);
                         FileIO.WriteTextAsync(file, json);
-                        serverAddress = content.settings.restServerAddress;
+                        ServerAddress = content.settings.restServerAddress;
                     }
                 }
                 else
@@ -76,7 +76,7 @@ namespace RocketChatUWP.Core.Api
                     };
                     var json = JsonConvert.SerializeObject(newContent);
                     await FileIO.WriteTextAsync(file, json);
-                    serverAddress = newContent.settings.restServerAddress;
+                    ServerAddress = newContent.settings.restServerAddress;
                 }
             }
             else
@@ -90,7 +90,7 @@ namespace RocketChatUWP.Core.Api
                 };
                 var json = JsonConvert.SerializeObject(content);
                 await FileIO.WriteTextAsync(file, json);
-                serverAddress = content.settings.restServerAddress;
+                ServerAddress = content.settings.restServerAddress;
             }
         }
 
@@ -108,7 +108,7 @@ namespace RocketChatUWP.Core.Api
                 HttpResponseMessage response = new HttpResponseMessage();
                 try
                 {
-                    response = await client.PostAsync($"{serverAddress}/api/v1/login", content);
+                    response = await client.PostAsync($"{ServerAddress}/api/v1/login", content);
                 }
                 catch
                 {
@@ -120,7 +120,7 @@ namespace RocketChatUWP.Core.Api
                 if (responseJson.status == "success")
                 {
                     User = new User(responseJson);
-                    var avatar = avatarsService.GetUserAvatar(serverAddress, User.Username);
+                    var avatar = avatarsService.GetUserAvatar(ServerAddress, User.Username);
                     User.Avatar = avatar;
                     return true;
                 }
@@ -136,7 +136,7 @@ namespace RocketChatUWP.Core.Api
                 var request = new HttpRequestMessage();
                 request.Headers.Add("X-Auth-Token", User.AuthToken);
                 request.Headers.Add("X-User-Id", User.Id);
-                request.RequestUri = new Uri($"{serverAddress}/api/v1/rooms.get");
+                request.RequestUri = new Uri($"{ServerAddress}/api/v1/rooms.get");
                 request.Method = HttpMethod.Get;
                 var response = await client.SendAsync(request);
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -148,15 +148,19 @@ namespace RocketChatUWP.Core.Api
                     if (room.t == "c" && room.prid == null)
                     {
                         newRoom = new Channel(room);
-                        newRoom.Avatar = avatarsService.GetChannelAvatar(serverAddress, newRoom.Name);
+                        newRoom.Avatar = avatarsService.GetChannelAvatar(ServerAddress, newRoom.Name);
+                        newRoom.AvatarUrl = avatarsService.GetChannelAvatarUrl(ServerAddress, newRoom.Name);
                     }
-                    else
+                    else if (room.t == "c" && room.prid != null)
                     {
                         newRoom = new Discussion(room);
-                        newRoom.Avatar = avatarsService.GetChannelAvatar(serverAddress, newRoom.Name);
+                        newRoom.Avatar = avatarsService.GetChannelAvatar(ServerAddress, newRoom.Name);
+                        newRoom.AvatarUrl = avatarsService.GetChannelAvatarUrl(ServerAddress, newRoom.Name);
                     }
-                    if (room.t == "d")
+                    else if (room.t == "d")
                         newRoom = new DirectConversation(room);
+                    else 
+                        newRoom = new PrivateGroup(room);
                     rooms.Add(newRoom);
                 }
                 return rooms;
@@ -170,7 +174,7 @@ namespace RocketChatUWP.Core.Api
                 var request = new HttpRequestMessage();
                 request.Headers.Add("X-Auth-Token", User.AuthToken);
                 request.Headers.Add("X-User-Id", User.Id);
-                request.RequestUri = new Uri($"{serverAddress}/api/v1/users.setStatus");
+                request.RequestUri = new Uri($"{ServerAddress}/api/v1/users.setStatus");
                 request.Method = HttpMethod.Post;
                 JObject contentJson = new JObject();
                 if (message == null)
@@ -192,7 +196,7 @@ namespace RocketChatUWP.Core.Api
             {
                 client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
                 client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
-                var response = await client.GetAsync($"{serverAddress}/api/v1/channels.history?roomId={roomId}&offset={offset}&count={count}");
+                var response = await client.GetAsync($"{ServerAddress}/api/v1/channels.history?roomId={roomId}&offset={offset}&count={count}");
                 var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
                 List<Message> messages = new List<Message>();
                 for (int i = 0; i < responseContent.messages.Length; i++)
@@ -209,14 +213,14 @@ namespace RocketChatUWP.Core.Api
             {
                 client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
                 client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
-                var response = await client.GetAsync($"{serverAddress}/api/v1/users.list");
+                var response = await client.GetAsync($"{ServerAddress}/api/v1/users.list");
                 var responseContent = JsonConvert.DeserializeObject<UsersListResponse>(await response.Content.ReadAsStringAsync());
                 var users = new List<User>();
                 foreach (var user in responseContent.users)
                 {
                     User newUser = new User(user);
-                    newUser.AvatarUrl = avatarsService.GetUserAvatarUrl(serverAddress, newUser.Username);
-                    newUser.Avatar = avatarsService.GetUserAvatar(serverAddress, newUser.Username);
+                    newUser.AvatarUrl = avatarsService.GetUserAvatarUrl(ServerAddress, newUser.Username);
+                    newUser.Avatar = avatarsService.GetUserAvatar(ServerAddress, newUser.Username);
                     users.Add(newUser);
                 }
                 return users;
@@ -230,7 +234,7 @@ namespace RocketChatUWP.Core.Api
                 var request = new HttpRequestMessage();
                 request.Headers.Add("X-Auth-Token", User.AuthToken);
                 request.Headers.Add("X-User-Id", User.Id);
-                request.RequestUri = new Uri($"{serverAddress}/api/v1/logout");
+                request.RequestUri = new Uri($"{ServerAddress}/api/v1/logout");
                 await client.SendAsync(request);
             }
 
@@ -243,12 +247,12 @@ namespace RocketChatUWP.Core.Api
             {
                 client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
                 client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
-                var response = await client.GetAsync($"{serverAddress}/api/v1/im.history?roomId={roomId}");
+                var response = await client.GetAsync($"{ServerAddress}/api/v1/im.history?roomId={roomId}");
                 var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
                 var messages = new List<Message>();
                 foreach(var message in responseContent.messages)
                 {
-                    messages.Add(new Message(message));
+                    messages.Insert(0, new Message(message));
                 }
                 return messages;
             }
@@ -261,7 +265,7 @@ namespace RocketChatUWP.Core.Api
                 var request = new HttpRequestMessage();
                 request.Headers.Add("X-Auth-Token", User.AuthToken);
                 request.Headers.Add("X-User-Id", User.Id);
-                request.RequestUri = new Uri($"{serverAddress}/api/v1/chat.postMessage");
+                request.RequestUri = new Uri($"{ServerAddress}/api/v1/chat.postMessage");
                 request.Method = HttpMethod.Post;
                 var content = new
                 {
@@ -282,7 +286,7 @@ namespace RocketChatUWP.Core.Api
                 var request = new HttpRequestMessage();
                 request.Headers.Add("X-Auth-Token", User.AuthToken);
                 request.Headers.Add("X-User-Id", User.Id);
-                request.RequestUri = new Uri($"{serverAddress}{imageUrl}");
+                request.RequestUri = new Uri($"{ServerAddress}{imageUrl}");
                 request.Method = HttpMethod.Get;
                 var res = await client.SendAsync(request);
                 var content = await res.Content.ReadAsStreamAsync();
@@ -302,7 +306,7 @@ namespace RocketChatUWP.Core.Api
                 var request = new HttpRequestMessage();
                 request.Headers.Add("X-Auth-Token", User.AuthToken);
                 request.Headers.Add("X-User-Id", User.Id);
-                request.RequestUri = new Uri($"{serverAddress}{fileUrl}");
+                request.RequestUri = new Uri($"{ServerAddress}{fileUrl}");
                 request.Method = HttpMethod.Get;
                 var res = await client.SendAsync(request);
                 var content = await res.Content.ReadAsStreamAsync();

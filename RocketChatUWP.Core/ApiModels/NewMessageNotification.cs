@@ -33,6 +33,8 @@ namespace RocketChatUWP.Core.ApiModels
         public string roomType { get; set; }
         public string roomName { get; set; }
         public string t { get; set; }
+        public MessageFileInfo file { get; set; }
+        public MessageAttachment[] attachments { get; set; }
     }
 
     public class NewMessageTimestamp

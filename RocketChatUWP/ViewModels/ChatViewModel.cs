@@ -147,23 +147,6 @@ namespace RocketChatUWP.ViewModels
         #endregion
 
         #region private methods
-        private void RegisterCommands()
-        {
-            OnlineStatusCommand = new DelegateCommand(OnOnlineStatus);
-            OfflineStatusCommand = new DelegateCommand(OnOfflineStatus);
-            AwayStatusCommand = new DelegateCommand(OnAwayStatus);
-            BusyStatusCommand = new DelegateCommand(OnBusyStatus);
-            EditStatusCommand = new DelegateCommand(OnEditStatus);
-            SelectedChannelCommand = new DelegateCommand(OnSelectedChannel);
-            LogoutCommand = new DelegateCommand(OnLogout);
-            SelectedDirectConversationCommand = new DelegateCommand(OnSelectedDirectConversation);
-            SendMessageCommand = new DelegateCommand(OnSendMessage, CanSendMessage);
-            OpenImageCommand = new DelegateCommand<BitmapImage>(OnOpenImage);
-            PointerEnteredCommand = new DelegateCommand(ChangeCursorToHand);
-            PointerExitedCommand = new DelegateCommand(ChangeCursorToArrow);
-            DownloadFileCommand = new DelegateCommand<Message>(OnDownloadFile);
-        }
-
         #region commands implementation
         private void OnBusyStatus()
         {
@@ -245,6 +228,13 @@ namespace RocketChatUWP.ViewModels
                 foreach (var message in messages)
                 {
                     message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
+                    if (message.Attachments != null && message.Attachments.Length > 0)
+                    {
+                        foreach (var attachment in message.Attachments)
+                        {
+                            attachment.ImagePreview = await rocketChatRest.GetImage(attachment.ImageUrl);
+                        }
+                    }
                 }
                 Messages = new ObservableCollection<Message>(messages);
             }
@@ -281,6 +271,23 @@ namespace RocketChatUWP.ViewModels
         #endregion
 
         #region other methods
+        private void RegisterCommands()
+        {
+            OnlineStatusCommand = new DelegateCommand(OnOnlineStatus);
+            OfflineStatusCommand = new DelegateCommand(OnOfflineStatus);
+            AwayStatusCommand = new DelegateCommand(OnAwayStatus);
+            BusyStatusCommand = new DelegateCommand(OnBusyStatus);
+            EditStatusCommand = new DelegateCommand(OnEditStatus);
+            SelectedChannelCommand = new DelegateCommand(OnSelectedChannel);
+            LogoutCommand = new DelegateCommand(OnLogout);
+            SelectedDirectConversationCommand = new DelegateCommand(OnSelectedDirectConversation);
+            SendMessageCommand = new DelegateCommand(OnSendMessage, CanSendMessage);
+            OpenImageCommand = new DelegateCommand<BitmapImage>(OnOpenImage);
+            PointerEnteredCommand = new DelegateCommand(ChangeCursorToHand);
+            PointerExitedCommand = new DelegateCommand(ChangeCursorToArrow);
+            DownloadFileCommand = new DelegateCommand<Message>(OnDownloadFile);
+        }
+
         private async Task GetRooms()
         {
             var rooms = await rocketChatRest.GetRooms();
@@ -418,6 +425,14 @@ namespace RocketChatUWP.ViewModels
         private async void NewMessageHandler(NewMessageNotification obj)
         {
             var message = new Message(obj);
+            if (message.Attachments != null && message.Attachments[0].IsImage)
+            {
+                await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    message.Attachments[0].ImagePreview = await message.Attachments[0].Base64ToBitmapImage(message.Attachments[0].ImagePreviewString);
+                    message.Attachments[0].ImagePreview = await rocketChatRest.GetImage(message.Attachments[0].ImageUrl);
+                });
+            }
             message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
             if (SelectedChannel != null && SelectedChannel.Id == obj.fields.args[0].rid)
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -432,20 +447,31 @@ namespace RocketChatUWP.ViewModels
                     {
                         Channels.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
                         Channels.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
-                        notificationService.ShowNewMessageToastNotification(message, "channel", Channels.FirstOrDefault(x => x.Id == message.RoomId).Name);
+                        if(message.Attachments != null && message.Attachments[0].IsImage)
+                            notificationService.ShowNewMessageToastNotification(message, Channels.FirstOrDefault(x => x.Id == message.RoomId), true);
+                        else
+                            notificationService.ShowNewMessageToastNotification(message, Channels.FirstOrDefault(x => x.Id == message.RoomId));
                     }
                     if (Discussions.Any(x => x.Id == message.RoomId))
                     {
                         Discussions.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
                         Discussions.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
                         if (obj.fields.args[0].t == null || obj.fields.args[0].t != "discussion-created")
-                            notificationService.ShowNewMessageToastNotification(message, "discussion", Discussions.FirstOrDefault(x => x.Id == message.RoomId).Name);
+                        {
+                            if(message.Attachments != null && message.Attachments[0].IsImage)
+                                notificationService.ShowNewMessageToastNotification(message, Discussions.FirstOrDefault(x => x.Id == message.RoomId), true);
+                            else
+                                notificationService.ShowNewMessageToastNotification(message, Discussions.FirstOrDefault(x => x.Id == message.RoomId));
+                        }
                     }
                     if (DirectConversations.Any(x => x.Id == message.RoomId))
                     {
                         DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).HasUnreadedMessages = true;
                         DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).ChannelFontWeight = FontWeights.Bold;
-                        notificationService.ShowNewMessageToastNotification(message, "directed", DirectConversations.FirstOrDefault(x => x.Id == message.RoomId).Name);
+                        if (message.Attachments != null && message.Attachments[0].IsImage)
+                            notificationService.ShowNewMessageToastNotification(message, DirectConversations.FirstOrDefault(x => x.Id == message.RoomId), true);
+                        else
+                            notificationService.ShowNewMessageToastNotification(message, DirectConversations.FirstOrDefault(x => x.Id == message.RoomId));
                     }
                     if (PrivateGroups.Any(x => x.Id == message.RoomId))
                     {

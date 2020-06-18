@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
+using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -45,6 +46,16 @@ namespace RocketChatUWP.Core.Models
             double seconds = double.Parse(message.fields.args[0].ts.date);
             Timestamp =  Timestamp.AddMilliseconds(seconds).ToLocalTime();
             User = new User { Id = message.fields.args[0].u._id, Username = message.fields.args[0].u.username };
+            if (message.fields.args[0].file != null)
+                File = new MessageFile(message.fields.args[0].file);
+            if (message.fields.args[0].attachments != null)
+            {
+                Attachments = new Attachment[message.fields.args[0].attachments.Length];
+                for (int i = 0; i < Attachments.Length; i++)
+                {
+                    Attachments[i] = new Attachment(message.fields.args[0].attachments[i]);
+                }
+            }
         }
 
         private string id;
@@ -132,7 +143,7 @@ namespace RocketChatUWP.Core.Models
         public string Type { get; set; }
     }
 
-    public class Attachment
+    public class Attachment : BindableBase
     {
         public Attachment(MessageAttachment attachment)
         {
@@ -140,17 +151,36 @@ namespace RocketChatUWP.Core.Models
             ImageUrl = attachment.image_url;
             ImageHeight = attachment.image_dimensions.height;
             ImageWidth = attachment.image_dimensions.width;
-            ImagePreview = Base64ToBitmapImage(attachment.image_preview).Result;
+            ImagePreviewString = attachment.image_preview;
+            ImageType = attachment.image_type;
+            var type = ImageType.Split('/');
+            if (type[0] == "image")
+                IsImage = true;
             Description = attachment.description;
+            if (string.IsNullOrEmpty(Description))
+                IsDescription = false;
+            else
+                IsDescription = true;
         }
         public int ImageSize { get; set; }
         public string ImageUrl { get; set; }
         public int ImageWidth { get; set; }
         public int ImageHeight { get; set; }
-        public BitmapImage ImagePreview { get; set; }
-        public string Description { get; set; }
+        public string ImageType { get; set; }
 
-        private async Task<BitmapImage> Base64ToBitmapImage(string source)
+        private BitmapImage imagePreview;
+        public BitmapImage ImagePreview
+        {
+            get { return imagePreview; }
+            set { SetProperty(ref imagePreview, value); }
+        }
+
+        public string Description { get; set; }
+        public bool IsDescription { get; set; }
+        public string ImagePreviewString { get; set; }
+        public bool IsImage { get; set; } = false;
+
+        public async Task<BitmapImage> Base64ToBitmapImage(string source)
         {
             var ims = new InMemoryRandomAccessStream();
             var bytes = Convert.FromBase64String(source);
