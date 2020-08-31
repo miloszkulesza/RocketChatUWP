@@ -17,9 +17,10 @@ namespace RocketChatUWP.Core.Api
         Task<IEnumerable<Message>> GetChannelHistory(string roomId, int offset = 0, int count = 20);
         Task<IEnumerable<User>> GetUsersList();
         void Logout();
-        Task<IEnumerable<Message>> GetDirectMessages(string roomId);
+        Task<IEnumerable<Message>> GetDirectMessages(string roomId, int offset = 0, int count = 20);
         void PostChatMessage(string roomId, string message);
         Task<BitmapImage> GetImage(string imageUrl);
         Task<MemoryStream> GetFile(string fileUrl);
+        Task<IEnumerable<Message>> GetPrivateGroupHistory(string roomId, int offset = 0, int count = 20);
     }
 }

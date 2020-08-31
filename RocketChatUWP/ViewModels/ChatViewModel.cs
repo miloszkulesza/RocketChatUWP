@@ -195,7 +195,11 @@ namespace RocketChatUWP.ViewModels
             {
                 SelectedChannel.HasUnreadedMessages = false;
                 SelectedChannel.ChannelFontWeight = FontWeights.Normal;
-                var messages = await rocketChatRest.GetChannelHistory(SelectedChannel.Id);
+                IEnumerable<Message> messages;
+                if (SelectedChannel is PrivateGroup)
+                    messages = await rocketChatRest.GetPrivateGroupHistory(SelectedChannel.Id);
+                else
+                    messages = await rocketChatRest.GetChannelHistory(SelectedChannel.Id);
                 foreach (var message in messages)
                 {
                     message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
@@ -302,7 +306,7 @@ namespace RocketChatUWP.ViewModels
                 conversationCasted.Avatar = conversationCasted.User.Avatar;
             }
             Discussions = new ObservableCollection<Room>(rooms.Where(x => x is Discussion).ToList());
-            PrivateGroups = new ObservableCollection<Room>();
+            PrivateGroups = new ObservableCollection<Room>(rooms.Where(x => x is PrivateGroup).ToList());
         }
 
         private void RegisterSubscriptions()
@@ -491,6 +495,8 @@ namespace RocketChatUWP.ViewModels
             ChangeCurrentStatus(new UserConnectionStatusNotification { fields = new UserConnectionStatusFields { status = LoggedUser.UserPresence.Status, message = LoggedUser.UserPresence.StatusText } });
             await GetUsers();
             await GetRooms();
+
+            SelectedChannel = Channels.FirstOrDefault(x => x.Name == "general");
         }
         #endregion
     }

@@ -97,6 +97,7 @@ namespace RocketChatUWP.Core.Api
                 if(message.msg != null && message.msg == "ping")
                 {
                     await PongRequest();
+                    return;
                 }
                 if(message.msg != null)
                 {

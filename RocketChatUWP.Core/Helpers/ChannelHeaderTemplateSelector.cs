@@ -10,18 +10,30 @@ namespace RocketChatUWP.Core.Helpers
         public DataTemplate DiscussionHeaderTemplate { get; set; }
         public DataTemplate PrivateConversationHeaderTemplate { get; set; }
         public DataTemplate EmptyHeaderTemplate { get; set; }
+        public DataTemplate PrivateGroupHeaderTemplate { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             if (item != null)
             {
                 Room room = item as Room;
-                if (room is Discussion)
-                    return DiscussionHeaderTemplate;
-                if (room is DirectConversation)
-                    return PrivateConversationHeaderTemplate;
-                if (room is Channel)
-                    return ChannelHeaderTemplate;
+                switch (room.GetType().Name)
+                {
+                    case "Channel":
+                        return ChannelHeaderTemplate;
+
+                    case "Discussion":
+                        return DiscussionHeaderTemplate;
+
+                    case "DirectConversation":
+                        return PrivateConversationHeaderTemplate;
+
+                    case "PrivateGroup":
+                        return PrivateGroupHeaderTemplate;
+
+                    default:
+                        return EmptyHeaderTemplate;
+                }
             }
             return EmptyHeaderTemplate;
         }

@@ -159,8 +159,12 @@ namespace RocketChatUWP.Core.Api
                     }
                     else if (room.t == "d")
                         newRoom = new DirectConversation(room);
-                    else 
+                    else
+                    {
                         newRoom = new PrivateGroup(room);
+                        newRoom.Avatar = avatarsService.GetChannelAvatar(ServerAddress, newRoom.Name);
+                        newRoom.AvatarUrl = avatarsService.GetChannelAvatarUrl(ServerAddress, newRoom.Name);
+                    }
                     rooms.Add(newRoom);
                 }
                 return rooms;
@@ -199,6 +203,11 @@ namespace RocketChatUWP.Core.Api
                 var response = await client.GetAsync($"{ServerAddress}/api/v1/channels.history?roomId={roomId}&offset={offset}&count={count}");
                 var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
                 List<Message> messages = new List<Message>();
+                if (!responseContent.success)
+                {
+                    toastService.ShowErrorToastNotification("Wczytywanie kanału", "Nie udało się pobrać wiadomości z kanału");
+                    return messages;
+                }
                 for (int i = 0; i < responseContent.messages.Length; i++)
                 {
                     messages.Insert(0, new Message(responseContent.messages[i]));
@@ -241,13 +250,13 @@ namespace RocketChatUWP.Core.Api
             User = null;
         }
 
-        public async Task<IEnumerable<Message>> GetDirectMessages(string roomId)
+        public async Task<IEnumerable<Message>> GetDirectMessages(string roomId, int offset = 0, int count = 20)
         {
             using(var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
                 client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
-                var response = await client.GetAsync($"{ServerAddress}/api/v1/im.history?roomId={roomId}");
+                var response = await client.GetAsync($"{ServerAddress}/api/v1/im.history?roomId={roomId}&offset={offset}&count={count}");
                 var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
                 var messages = new List<Message>();
                 foreach(var message in responseContent.messages)
@@ -313,6 +322,23 @@ namespace RocketChatUWP.Core.Api
                 var memStream = new MemoryStream();
                 await content.CopyToAsync(memStream);
                 return memStream;
+            }
+        }
+
+        public async Task<IEnumerable<Message>> GetPrivateGroupHistory(string roomId, int offset = 0, int count = 20)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Auth-Token", User.AuthToken);
+                client.DefaultRequestHeaders.Add("X-User-Id", User.Id);
+                var response = await client.GetAsync($"{ServerAddress}/api/v1/groups.history?roomId={roomId}&offset={offset}&count={count}");
+                var responseContent = JsonConvert.DeserializeObject<ChatHistoryResponse>(await response.Content.ReadAsStringAsync());
+                var messages = new List<Message>();
+                foreach (var message in responseContent.messages)
+                {
+                    messages.Insert(0, new Message(message));
+                }
+                return messages;
             }
         }
     }

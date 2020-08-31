@@ -19,11 +19,14 @@
                                         MessageTemplate="{StaticResource messageTemplate}"
                                         UserJoinedTemplate="{StaticResource userJoinedTemplate}"
                                         ImageMessageTemplate="{StaticResource imageMessageTemplate}" />
+        
         <helpers:ChannelHeaderTemplateSelector x:Key="channelHeaderTemplateSelector"
                                                ChannelHeaderTemplate="{StaticResource channelHeaderTemplate}"
                                                DiscussionHeaderTemplate="{StaticResource discussionHeaderTemplate}"
                                                PrivateConversationHeaderTemplate="{StaticResource privateConversationHeaderTemplate}"
-                                               EmptyHeaderTemplate="{StaticResource emptyHeaderTemplate}" />
+                                               EmptyHeaderTemplate="{StaticResource emptyHeaderTemplate}"
+                                               PrivateGroupHeaderTemplate="{StaticResource privateGroupHeaderTemplate}"/>
+        
         <helpers:ChannelListItemTemplateSelector x:Key="channelListItemTemplateSelector"
                                                  ChannelTemplate="{StaticResource channelTemplate}"
                                                  DirectConversationTemplate="{StaticResource directConversationTemplate}"
@@ -348,6 +351,36 @@
             </Grid>
         </DataTemplate>
 
+        <DataTemplate x:Key="privateGroupHeaderTemplate">
+            <Grid Width="{Binding ElementName=headerRow, Path=Width}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0"
+                      Margin="20 0 0 5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <FontIcon Grid.Column="0"
+                              Glyph="&#xE72E;"
+                              FontSize="18"
+                              Margin="0 15 10 0"/>
+                    <TextBlock Text="{Binding Name}"
+                           FontSize="16"
+                           Grid.Column="1"
+                           Margin="0 10 0 0"
+                           VerticalAlignment="Center"/>
+                </Grid>
+
+                <TextBlock Text="Przyciski"
+                           Grid.Column="2"
+                            VerticalAlignment="Center"/>
+            </Grid>
+        </DataTemplate>
+
         <DataTemplate x:Key="privateConversationHeaderTemplate">
             <Grid Width="{Binding ElementName=headerRow, Path=Width}">
                 <Grid.ColumnDefinitions>
@@ -517,7 +550,42 @@
         </DataTemplate>
 
         <DataTemplate x:Key="privateGroupTemplate">
-            <TextBlock Style="{StaticResource channelListItemStyle}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Border Width="25"
+                        Margin="0 0 10 0"
+                        CornerRadius="3"
+                        Grid.Column="0">
+                    <Image Source="{Binding Avatar}" />
+                </Border>
+                <FontIcon Grid.Column="1"
+                          Glyph="&#xE72E;"
+                          FontWeight="{Binding ChannelFontWeight}">
+                    <FontIcon.Style>
+                        <Style TargetType="FontIcon">
+                            <Setter Property="Foreground" Value="LightGray" />
+                            <Setter Property="FontSize" Value="18" />
+                            <Setter Property="Margin" Value="0 0 5 0" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </FontIcon.Style>
+                </FontIcon>
+                <TextBlock Text="{Binding Name}"
+                           Grid.Column="2"
+                           FontWeight="{Binding ChannelFontWeight}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="LightGray" />
+                            <Setter Property="FontSize" Value="14" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="discussionTemplate">
