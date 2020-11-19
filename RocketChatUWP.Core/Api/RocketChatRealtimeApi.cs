@@ -15,13 +15,16 @@ namespace RocketChatUWP.Core.Api
 {
     public class RocketChatRealtimeApi : IRocketChatRealtimeApi
     {
+        #region private members
         private string serverAddress;
         private string guid = Guid.NewGuid().ToString();
         private MessageWebSocket socket;
         private readonly IEventAggregator eventAggregator;
         private readonly IRocketChatRestApi rocketChatRest;
         private readonly IToastNotificationsService toastService;
+        #endregion
 
+        #region ctor
         public RocketChatRealtimeApi(
             IEventAggregator eventAggregator,
             IRocketChatRestApi rocketChatRest,
@@ -34,7 +37,9 @@ namespace RocketChatUWP.Core.Api
             socket = new MessageWebSocket();
             socket.MessageReceived += OnMessageReceived;
         }
+        #endregion
 
+        #region private methods
         private async void SetServerAddress()
         {
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
@@ -52,27 +57,6 @@ namespace RocketChatUWP.Core.Api
                     serverAddress = content.settings.websocketServerAddress;
                 }
             }
-        }
-
-        public async Task Connect()
-        {
-            try
-            {
-                await socket.ConnectAsync(new Uri(serverAddress));
-            }
-            catch
-            {
-                toastService.ShowErrorToastNotification("Błąd połączenia", "Nie udało się nawiązać połączenia z websocketem Rocket.Chat.");
-                return;
-            }
-            var connectJson = new JObject(new JProperty("msg", "connect"),
-                                          new JProperty("version", "1"),
-                                          new JProperty("support", new JArray("1")));
-
-            var jsonSerialized = JsonConvert.SerializeObject(connectJson);
-            await SendMessage(jsonSerialized);
-            await Login();
-            await SendSubscriptionsRequests();
         }
 
         private async Task Login()
@@ -94,18 +78,18 @@ namespace RocketChatUWP.Core.Api
                 string messageReceived = dataReader.ReadString(dataReader.UnconsumedBufferLength);
                 Debug.WriteLine($"[{DateTime.Now}]Message received from MessageWebSocket: {messageReceived}");
                 dynamic message = JsonConvert.DeserializeObject(messageReceived);
-                if(message.msg != null && message.msg == "ping")
+                if (message.msg != null && message.msg == "ping")
                 {
                     await PongRequest();
                     return;
                 }
-                if(message.msg != null)
+                if (message.msg != null)
                 {
-                    if(message.msg == "changed" && message.collection == "stream-notify-logged")
+                    if (message.msg == "changed" && message.collection == "stream-notify-logged")
                         HandleUserConnectionStatusChange(messageReceived);
-                    if(message.msg == "changed" && message.collection == "stream-room-messages")
+                    if (message.msg == "changed" && message.collection == "stream-room-messages")
                     {
-                        if(message.fields.eventName == "__my_messages__")
+                        if (message.fields.eventName == "__my_messages__")
                             HandleUserNotifyStream(messageReceived);
                     }
                 }
@@ -132,13 +116,13 @@ namespace RocketChatUWP.Core.Api
             await SendMessage(subscriptonSerialized);
 
 
-                subscriptionJson = new JObject(new JProperty("msg", "sub"),
-                                           new JProperty("id", Guid.NewGuid().ToString()),
-                                           new JProperty("name", "stream-room-messages"),
-                                           new JProperty("params", new JArray("__my_messages__", false)));
-                subscriptonSerialized = JsonConvert.SerializeObject(subscriptionJson);
-                await SendMessage(subscriptonSerialized);
-            
+            subscriptionJson = new JObject(new JProperty("msg", "sub"),
+                                       new JProperty("id", Guid.NewGuid().ToString()),
+                                       new JProperty("name", "stream-room-messages"),
+                                       new JProperty("params", new JArray("__my_messages__", false)));
+            subscriptonSerialized = JsonConvert.SerializeObject(subscriptionJson);
+            await SendMessage(subscriptonSerialized);
+
             subscriptionJson = new JObject(new JProperty("msg", "sub"),
                                            new JProperty("id", Guid.NewGuid().ToString()),
                                            new JProperty("name", "stream-notify-user"),
@@ -170,10 +154,40 @@ namespace RocketChatUWP.Core.Api
                 default:
                     break;
             }
-            if(array[3] != null || array[3].ToString() == string.Empty)
+            if (array[3] != null || array[3].ToString() == string.Empty)
                 notification.fields.message = array[3].ToString();
             eventAggregator.GetEvent<UserConnectionStatusChangedEvent>().Publish(notification);
         }
+        private void HandleUserNotifyStream(string messageReceived)
+        {
+            var notification = JsonConvert.DeserializeObject<NewMessageNotification>(messageReceived);
+            if (notification.fields.args[0].t == "discussion-created")
+                return;
+            eventAggregator.GetEvent<NewMessageEvent>().Publish(notification);
+        }
+        #endregion
+
+        #region public methods
+        public async Task Connect()
+        {
+            try
+            {
+                await socket.ConnectAsync(new Uri(serverAddress));
+            }
+            catch
+            {
+                toastService.ShowErrorToastNotification("Błąd połączenia", "Nie udało się nawiązać połączenia z websocketem Rocket.Chat.");
+                return;
+            }
+            var connectJson = new JObject(new JProperty("msg", "connect"),
+                                          new JProperty("version", "1"),
+                                          new JProperty("support", new JArray("1")));
+
+            var jsonSerialized = JsonConvert.SerializeObject(connectJson);
+            await SendMessage(jsonSerialized);
+            await Login();
+            await SendSubscriptionsRequests();
+        }        
 
         public async Task SendMessage(string message)
         {
@@ -203,13 +217,6 @@ namespace RocketChatUWP.Core.Api
             socket.MessageReceived += OnMessageReceived;
             guid = Guid.NewGuid().ToString();
         }
-
-        private void HandleUserNotifyStream(string messageReceived)
-        {
-            var notification = JsonConvert.DeserializeObject<NewMessageNotification>(messageReceived);
-            if (notification.fields.args[0].t == "discussion-created")
-                return;
-            eventAggregator.GetEvent<NewMessageEvent>().Publish(notification);
-        }
+        #endregion
     }
 }

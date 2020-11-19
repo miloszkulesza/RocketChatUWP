@@ -110,6 +110,8 @@ namespace RocketChatUWP.ViewModels
             get { return messageText; }
             set { SetProperty(ref messageText, value); }
         }
+
+        public ScrollViewer ScrollViewer { get; set; }
         #endregion
 
         #region commands
@@ -394,12 +396,12 @@ namespace RocketChatUWP.ViewModels
 
         private void ChangeCursorToArrow()
         {
-            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 0);
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
         }
 
         private void ChangeCursorToHand()
         {
-            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 0);
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
         }
         #endregion
         #endregion
@@ -413,8 +415,7 @@ namespace RocketChatUWP.ViewModels
                 {
                     LoggedUser.UserPresence.Status = obj.fields.status;
                     ChangeCurrentStatus(obj);
-                });
-                
+                });                
             }
             else
             {
@@ -429,7 +430,7 @@ namespace RocketChatUWP.ViewModels
         private async void NewMessageHandler(NewMessageNotification obj)
         {
             var message = new Message(obj);
-            if (message.Attachments != null && message.Attachments[0].IsImage)
+            if (message.Attachments != null && message.Attachments.Length != 0 && message.Attachments[0].IsImage)
             {
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
@@ -439,10 +440,12 @@ namespace RocketChatUWP.ViewModels
             }
             message.User = Users.FirstOrDefault(x => x.Id == message.User.Id);
             if (SelectedChannel != null && SelectedChannel.Id == obj.fields.args[0].rid)
+            {
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     Messages.Add(message);
                 });
+            }                
             else
             {
                 await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>

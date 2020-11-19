@@ -13,6 +13,8 @@ namespace RocketChatUWP.Views
         public ChatPage()
         {
             this.InitializeComponent();
+            ChatViewModel vm = DataContext as ChatViewModel;
+            vm.ScrollViewer = scrollViewer;
         }
 
         private void KeyboardAccelerator_Invoked(Windows.UI.Xaml.Input.KeyboardAccelerator sender, Windows.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)

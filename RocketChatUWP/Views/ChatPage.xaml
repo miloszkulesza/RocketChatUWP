@@ -884,7 +884,8 @@
             </Grid>
 
             <Grid Grid.Row="1">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              x:Name="scrollViewer">
                     <ListView ItemsSource="{Binding Messages}"
                               SelectionMode="None"
                               x:Name="messagesList"
