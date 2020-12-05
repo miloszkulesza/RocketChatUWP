@@ -13,6 +13,10 @@ using Prism.Windows.Navigation;
 using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.Constants;
 using RocketChatUWP.Core.Events.Login;
+using RocketChatUWP.Core.Helpers;
+using RocketChatUWP.Core.Services;
+using RocketChatUWP.Views;
+using Windows.UI.Xaml.Controls;
 
 namespace RocketChatUWP.ViewModels
 {
@@ -23,7 +27,7 @@ namespace RocketChatUWP.ViewModels
         private readonly IRocketChatRestApi rocketChat;
         private readonly INavigationService navigationService;
         private readonly IRocketChatRealtimeApi rocketChatRealtime;
-        private readonly IUnityContainer unityContainer;
+        private readonly IToastNotificationsService toastService;
         #endregion
 
         #region properties
@@ -59,6 +63,7 @@ namespace RocketChatUWP.ViewModels
         #region commands
         public DelegateCommand LoginCommand { get; set; }
         public DelegateCommand ClosePopupCommand { get; set; }
+        public DelegateCommand SettingsCommand { get; set; }
         #endregion
 
         #region ctor
@@ -67,14 +72,14 @@ namespace RocketChatUWP.ViewModels
             IRocketChatRestApi rocketChat,
             INavigationService navigationService,
             IRocketChatRealtimeApi rocketChatRealtime,
-            IUnityContainer unityContainer
+            IToastNotificationsService toastService
             )
         {
-            this.unityContainer = unityContainer;
             this.eventAggregator = eventAggregator;
             this.rocketChat = rocketChat;
             this.navigationService = navigationService;
             this.rocketChatRealtime = rocketChatRealtime;
+            this.toastService = toastService;
             RegisterCommands();
             ButtonsEnabled = true;
             IsPopupOpened = false;
@@ -86,15 +91,31 @@ namespace RocketChatUWP.ViewModels
         {
             LoginCommand = new DelegateCommand(OnLogin);
             ClosePopupCommand = new DelegateCommand(OnClosePopup);
+            SettingsCommand = new DelegateCommand(OnSettings);
         }
 
         private async void OnLogin()
         {
+            bool validateServerAddresses = true;
+            if (rocketChat.ServerAddress == string.Empty)
+            {
+                toastService.ShowErrorToastNotification("Błąd połączenia", "Nie ustawiono adresu serwera http Rocket.Chat.");
+                validateServerAddresses = false;
+            }
+            if(rocketChatRealtime.ServerAddress == string.Empty)
+            {
+                toastService.ShowErrorToastNotification("Błąd połączenia", "Nie ustawiono adresu serwera websocket Rocket.Chat.");
+                validateServerAddresses = false;
+            }
+            if (!validateServerAddresses)
+                return;
+
             ButtonsEnabled = false;
             bool result;
             try
             {
                 result = await rocketChat.Login(Username, Password);
+                await rocketChatRealtime.Connect();
                 ButtonsEnabled = true;
             }
             catch
@@ -102,13 +123,16 @@ namespace RocketChatUWP.ViewModels
                 ButtonsEnabled = true;
                 return;
             }
-            if (result)
-            {
-                rocketChatRealtime.Connect();
+            if (result && rocketChatRealtime.IsConnected)
                 navigationService.Navigate(PageTokens.ChatPage, "");
-            }
             else
             {
+                if(!rocketChatRealtime.IsConnected)
+                {
+                    rocketChat.Logout();
+                    return;
+                }
+
                 Username = string.Empty;
                 Password = string.Empty;
                 IsPopupOpened = true;
@@ -121,6 +145,17 @@ namespace RocketChatUWP.ViewModels
         private void OnClosePopup()
         {
             IsPopupOpened = false;
+        }
+
+        private async void OnSettings()
+        {
+            var dialog = new SettingsDialog();
+            var result = await dialog.ShowAsync();
+            if(result == ContentDialogResult.Secondary)
+            {
+                eventAggregator.GetEvent<ServerAddressChangedEvent>().Publish(dialog.Address);
+                await ServerAddressHelper.SetServerAddressAndSave(dialog.Address);
+            }                
         }
         #endregion
     }

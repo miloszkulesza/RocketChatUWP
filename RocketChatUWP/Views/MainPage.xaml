@@ -94,6 +94,14 @@
                 </Button>
             </Popup>
 
+            <Button Background="Transparent"
+                    RelativePanel.AlignLeftWithPanel="True"
+                    RelativePanel.AlignBottomWithPanel="True"
+                    Command="{Binding SettingsCommand}">
+                <FontIcon Glyph="&#xE713;"
+                          Foreground="Gray"
+                          FontSize="36"/>
+            </Button>                 
 
             <Grid Grid.Column="0"
               RelativePanel.AlignHorizontalCenterWithPanel="True">

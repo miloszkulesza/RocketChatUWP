@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Prism.Events;
 using RocketChatUWP.Core.ApiModels;
+using RocketChatUWP.Core.Events.Login;
+using RocketChatUWP.Core.Helpers;
 using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using System;
@@ -9,7 +12,6 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RocketChatUWP.Core.Api
@@ -19,6 +21,7 @@ namespace RocketChatUWP.Core.Api
         #region private members
         private readonly IToastNotificationsService toastService;
         private readonly IAvatarsService avatarsService;
+        private readonly IEventAggregator eventAggregator;
         private readonly HttpClient httpClient = new HttpClient();
         #endregion
 
@@ -30,74 +33,22 @@ namespace RocketChatUWP.Core.Api
         #region ctor
         public RocketChatRestApi(
             IToastNotificationsService toastService,
-            IAvatarsService avatarsService)
+            IAvatarsService avatarsService,
+            IEventAggregator eventAggregator)
         {
             this.toastService = toastService;
             this.avatarsService = avatarsService;
-            SetServerAddress();  
+            this.eventAggregator = eventAggregator;
+            this.eventAggregator.GetEvent<ServerAddressChangedEvent>().Subscribe(ServerAddressChangedHandler);
+            GetServerAddress();
         }
         #endregion
 
         #region private methods
-        private async void SetServerAddress()
+        private async Task GetServerAddress()
         {
-            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile file = await storageFolder.CreateFileAsync("settings.json", CreationCollisionOption.OpenIfExists);
-            if (file.IsAvailable)
-            {
-                dynamic content = JsonConvert.DeserializeObject(await FileIO.ReadTextAsync(file));
-                if (content != null)
-                {
-                    if(content.settings != null)
-                    {
-                        if(content.settings.restServerAddress != null)
-                            ServerAddress = content.settings.restServerAddress;
-                        else
-                        {
-                            content.settings.restServerAddress = "http://localhost:3000";
-                            var json = JsonConvert.SerializeObject(content);
-                            FileIO.WriteTextAsync(file, json);
-                            ServerAddress = content.settings.restServerAddress;
-                        }
-                    }
-                    else
-                    {
-                        content.settings = new
-                        {
-                            restServerAddress = "http://localhost:3000"
-                        };
-                        var json = JsonConvert.SerializeObject(content);
-                        FileIO.WriteTextAsync(file, json);
-                        ServerAddress = content.settings.restServerAddress;
-                    }
-                }
-                else
-                {
-                    var newContent = new
-                    {
-                        settings = new
-                        {
-                            restServerAddress = "http://localhost:3000"
-                        }
-                    };
-                    var json = JsonConvert.SerializeObject(newContent);
-                    await FileIO.WriteTextAsync(file, json);
-                    ServerAddress = newContent.settings.restServerAddress;
-                }
-            }
-            else
-            {
-                var content = new
-                {
-                    settings = new
-                    {
-                        restServerAddress = "http://localhost:3000"
-                    }
-                };
-                var json = JsonConvert.SerializeObject(content);
-                await FileIO.WriteTextAsync(file, json);
-                ServerAddress = content.settings.restServerAddress;
-            }
+            var address = await ServerAddressHelper.GetServerAddress();
+            ServerAddress = address.HttpAddress;
         }
 
         private HttpRequestMessage CreateAuthorizedRequest(HttpMethod method, Uri uri)
@@ -113,7 +64,7 @@ namespace RocketChatUWP.Core.Api
 
         #region public methods
         public async Task<bool> Login(string username, string password)
-        {
+        {                
             var json = new
             {
                 user = username,
@@ -128,7 +79,7 @@ namespace RocketChatUWP.Core.Api
             }
             catch
             {
-                toastService.ShowErrorToastNotification("Błąd połączenia", "Nie udało się połączyć z serwerem Rocket.Chat.");
+                toastService.ShowErrorToastNotification("Błąd połączenia", "Nie udało się połączyć z serwerem http Rocket.Chat.");
                 throw;
             }
             var responseString = await response.Content.ReadAsStringAsync();
@@ -299,6 +250,13 @@ namespace RocketChatUWP.Core.Api
                 messages.Insert(0, new Message(message));
             }
             return messages;
+        }
+        #endregion
+
+        #region event handlers
+        private void ServerAddressChangedHandler(ServerAddress payload)
+        {
+            ServerAddress = payload.HttpAddress;
         }
         #endregion
     }

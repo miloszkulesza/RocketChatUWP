@@ -2,7 +2,10 @@
 using Newtonsoft.Json.Linq;
 using Prism.Events;
 using RocketChatUWP.Core.ApiModels;
+using RocketChatUWP.Core.Events.Login;
 using RocketChatUWP.Core.Events.Websocket;
+using RocketChatUWP.Core.Helpers;
+using RocketChatUWP.Core.Models;
 using RocketChatUWP.Core.Services;
 using System;
 using System.Diagnostics;
@@ -16,12 +19,16 @@ namespace RocketChatUWP.Core.Api
     public class RocketChatRealtimeApi : IRocketChatRealtimeApi
     {
         #region private members
-        private string serverAddress;
         private string guid = Guid.NewGuid().ToString();
         private MessageWebSocket socket;
         private readonly IEventAggregator eventAggregator;
         private readonly IRocketChatRestApi rocketChatRest;
         private readonly IToastNotificationsService toastService;
+        #endregion
+
+        #region properties
+        public string ServerAddress { get; set; }
+        public bool IsConnected { get; set; } = false;
         #endregion
 
         #region ctor
@@ -31,32 +38,20 @@ namespace RocketChatUWP.Core.Api
             IToastNotificationsService toastService)
         {
             this.eventAggregator = eventAggregator;
+            this.eventAggregator.GetEvent<ServerAddressChangedEvent>().Subscribe(ServerAddressChangedHandler);
             this.rocketChatRest = rocketChatRest;
             this.toastService = toastService;
-            SetServerAddress();
+            GetServerAddress();
             socket = new MessageWebSocket();
             socket.MessageReceived += OnMessageReceived;
         }
         #endregion
 
         #region private methods
-        private async void SetServerAddress()
+        private async void GetServerAddress()
         {
-            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile file = await storageFolder.CreateFileAsync("settings.json", CreationCollisionOption.OpenIfExists);
-            if (file.IsAvailable)
-            {
-                dynamic content = JsonConvert.DeserializeObject(await FileIO.ReadTextAsync(file));
-                if (content.settings.websocketServerAddress != null)
-                    serverAddress = content.settings.websocketServerAddress;
-                else
-                {
-                    content.settings.websocketServerAddress = "ws://localhost:3000/websocket";
-                    var json = JsonConvert.SerializeObject(content);
-                    FileIO.WriteTextAsync(file, json);
-                    serverAddress = content.settings.websocketServerAddress;
-                }
-            }
+            var address = await ServerAddressHelper.GetServerAddress();
+            ServerAddress = address.WebsocketAddress;
         }
 
         private async Task Login()
@@ -172,13 +167,16 @@ namespace RocketChatUWP.Core.Api
         {
             try
             {
-                await socket.ConnectAsync(new Uri(serverAddress));
+                await socket.ConnectAsync(new Uri(ServerAddress));
             }
             catch
             {
                 toastService.ShowErrorToastNotification("Błąd połączenia", "Nie udało się nawiązać połączenia z websocketem Rocket.Chat.");
+                IsConnected = false;
                 return;
             }
+            IsConnected = true;
+
             var connectJson = new JObject(new JProperty("msg", "connect"),
                                           new JProperty("version", "1"),
                                           new JProperty("support", new JArray("1")));
@@ -216,6 +214,13 @@ namespace RocketChatUWP.Core.Api
             socket = new MessageWebSocket();
             socket.MessageReceived += OnMessageReceived;
             guid = Guid.NewGuid().ToString();
+        }
+        #endregion
+
+        #region event handlers
+        private void ServerAddressChangedHandler(ServerAddress payload)
+        {
+            ServerAddress = payload.WebsocketAddress;
         }
         #endregion
     }
