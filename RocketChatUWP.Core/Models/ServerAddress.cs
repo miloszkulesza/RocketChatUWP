@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RocketChatUWP.Core.Models
+﻿namespace RocketChatUWP.Core.Models
 {
     public class ServerAddress
     {

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Microsoft.Graphics.Canvas.Text;
-using Microsoft.Practices.Unity;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;

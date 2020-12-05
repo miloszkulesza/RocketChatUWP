@@ -11,7 +11,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
-using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace RocketChatUWP.Core.Api
