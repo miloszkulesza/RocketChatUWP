@@ -1,5 +1,6 @@
 ﻿using RocketChatUWP.Core.Helpers;
 using RocketChatUWP.Core.Models;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 
 // Szablon elementu Kontrolka użytkownika jest udokumentowany na stronie https://go.microsoft.com/fwlink/?LinkId=234236
@@ -17,7 +18,7 @@ namespace RocketChatUWP.Views
             GetServerAddress();
         }
 
-        private async void GetServerAddress()
+        private async Task GetServerAddress()
         {
             var address = await ServerAddressHelper.GetServerAddress();
             Address.HttpAddress = address.HttpAddress;

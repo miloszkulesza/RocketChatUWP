@@ -47,7 +47,7 @@ namespace RocketChatUWP.Core.Api
         #endregion
 
         #region private methods
-        private async void GetServerAddress()
+        private async Task GetServerAddress()
         {
             var address = await ServerAddressHelper.GetServerAddress();
             ServerAddress = address.WebsocketAddress;
@@ -197,7 +197,7 @@ namespace RocketChatUWP.Core.Api
             }
         }
 
-        public async void SetUserStatus(string status)
+        public async Task SetUserStatus(string status)
         {
             var json = new JObject(new JProperty("msg", "method"),
                                    new JProperty("method", $"UserPresence:setDefaultStatus"),

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using RocketChatUWP.Core.Api;
 using RocketChatUWP.Core.Models;
 using System;
 using Windows.Data.Xml.Dom;
@@ -7,7 +6,6 @@ using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RocketChatUWP.Core.Services
 {

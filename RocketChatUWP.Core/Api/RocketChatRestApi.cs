@@ -130,7 +130,7 @@ namespace RocketChatUWP.Core.Api
             return rooms;
         }
 
-        public async void SetUserStatus(string message = null)
+        public async Task SetUserStatus(string message = null)
         {
             var request = CreateAuthorizedRequest(HttpMethod.Post, new Uri($"{ServerAddress}/api/v1/users.setStatus"));
             JObject contentJson = new JObject();
@@ -180,7 +180,7 @@ namespace RocketChatUWP.Core.Api
             return users;
         }
 
-        public async void Logout()
+        public async Task Logout()
         {
             var request = CreateAuthorizedRequest(HttpMethod.Get, new Uri($"{ServerAddress}/api/v1/logout"));
             var response = await httpClient.SendAsync(request);
@@ -202,7 +202,7 @@ namespace RocketChatUWP.Core.Api
             return messages;
         }
 
-        public async void PostChatMessage(string roomId, string message)
+        public async Task PostChatMessage(string roomId, string message)
         {
             var request = CreateAuthorizedRequest(HttpMethod.Post, new Uri($"{ServerAddress}/api/v1/chat.postMessage"));
             var content = new

@@ -8,7 +8,7 @@ namespace RocketChatUWP.Core.Api
         bool IsConnected { get; set; }
         Task Connect();
         Task SendMessage(string message);
-        void SetUserStatus(string status);
+        Task SetUserStatus(string status);
         void DisposeSocket();
     }
 }
